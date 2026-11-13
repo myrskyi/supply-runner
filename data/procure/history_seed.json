@@ -1,8 +1,9 @@
 {
-  "note": "Constructed past orders for the demo, not real experiences with these shops.",
+  "note": "Constructed past orders for the demo, not real experiences with these shops. The negative record names its shop only by hash and shows an alias.",
   "orders": [
     {
-      "supplier": "e-ArmyShop",
+      "supplier_sha256": "3c91a52d8c0454745a28c7a8eaaf9de0ed0578c4c7c382cb7283ac371e8ad99d",
+      "alias": "Shop X (anonymised)",
       "category": "dual_use",
       "rating": 2,
       "comment": "Pickup 3 days late, no export classification on the invoice",

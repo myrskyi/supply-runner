@@ -186,11 +186,15 @@ def history() -> list[dict]:
     return seed + live
 
 
+def _is_supplier(entry: dict, name: str) -> bool:
+    return entry.get("supplier") == name or entry.get("supplier_sha256") == hashlib.sha256(name.encode()).hexdigest()
+
+
 def our_record(name: str) -> dict | None:
-    past = [h for h in history() if h["supplier"] == name]
+    past = [h for h in history() if _is_supplier(h, name)]
     if not past:
         return None
-    return {"rating": round(sum(h["rating"] for h in past) / len(past), 1), "orders": len(past), "last_comment": past[-1].get("comment") or ""}
+    return {"rating": round(sum(h["rating"] for h in past) / len(past), 1), "orders": len(past), "last_comment": past[-1].get("comment") or "", "alias": past[-1].get("alias")}
 
 
 def rank(c: dict, weight: float) -> float:
@@ -221,7 +225,7 @@ def find_suppliers(request: dict) -> tuple[list[dict], list[dict]]:
         ranked = sorted(candidates, key=lambda c: rank(c, weight), reverse=True)
         by_google = sorted(candidates, key=score, reverse=True)[:SHORTLIST_PER_CATEGORY]
         shortlist = {c["name"] for c in ranked[:SHORTLIST_PER_CATEGORY]}
-        demoted += [{"name": c["name"], "ours": our_record(c["name"])} for c in by_google if c["name"] not in shortlist and our_record(c["name"])]
+        demoted += [{"name": our_record(c["name"])["alias"] or c["name"], "ours": our_record(c["name"])} for c in by_google if c["name"] not in shortlist and our_record(c["name"])]
         for c in ranked[:SHORTLIST_PER_CATEGORY]:
             found.append({
                 "id": uuid.uuid4().hex[:6],
