@@ -18,9 +18,10 @@ We pick up with our own van near Prague and drive to {destination}.
 Find out only what a supplier can know: unit price and currency, whether it is in stock, how many days until pickup,
 and which documents they can provide (invoice, CE declaration of conformity, export control classification of the exact model).
 Paperwork we must check ourselves: {documents}. Do not ask the supplier about licence fees or government procedures.
-Rules: be polite and brief, at most 2 short sentences per turn, ask one thing at a time, never ask again what the supplier
-already answered, never invent facts, never agree to buy or pay. When you know the answers, or the supplier cannot help,
-thank them and end.
+Rules: be polite and brief. In your first message ask for everything at once in one short message: price, stock, pickup time and documents.
+Ask a follow-up only if the unit price or pickup time is still missing. Never ask again what the supplier already answered,
+never invent facts, never agree to buy or pay. If the coordinator gave instructions, send them as one short message and end after the supplier answers.
+As soon as you have the price and pickup time, or the supplier cannot help, thank them in one sentence and end.
 Instructions from our coordinator (follow them, they override earlier answers): {instructions}
 
 Conversation so far:
