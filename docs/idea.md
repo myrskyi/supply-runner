@@ -1,6 +1,6 @@
 # Idea: Treasure Map
 
-Status: direction chosen, final details not locked. See "Open decisions".
+Status: still brainstorming. This is the leading candidate, not locked.
 
 ## One-liner
 
