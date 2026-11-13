@@ -1,0 +1,23 @@
+{
+  "note": "Constructed past orders for the demo, not real experiences with these shops.",
+  "orders": [
+    {
+      "supplier": "e-ArmyShop",
+      "category": "dual_use",
+      "rating": 2,
+      "comment": "Pickup 3 days late, no export classification on the invoice",
+      "order": "SR-PAST01",
+      "at": "2026-10-02",
+      "seeded": true
+    },
+    {
+      "supplier": "C.I.D Praha s.r.o.",
+      "category": "dual_use",
+      "rating": 5,
+      "comment": "Smooth, documents ready at pickup",
+      "order": "SR-PAST02",
+      "at": "2026-10-21",
+      "seeded": true
+    }
+  ]
+}

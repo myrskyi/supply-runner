@@ -12,6 +12,8 @@ from . import analytics, config, llm, messaging, search, telegram
 CONFIG_FILE = config.DATA / "procure" / "config.json"
 COMPLIANCE_FILE = config.DATA / "procure" / "compliance.json"
 STATE_FILE = config.DATA / "procure_state.json"
+HISTORY_FILE = config.DATA / "procure_history.json"
+HISTORY_SEED = config.DATA / "procure" / "history_seed.json"
 SHORTLIST_PER_CATEGORY = 3
 
 lock = threading.RLock()
@@ -96,9 +98,27 @@ def score(c: dict) -> float:
     return round(rating + reachable * 0.5, 2)
 
 
-def find_suppliers(request: dict) -> list[dict]:
+def history() -> list[dict]:
+    seed = json.loads(HISTORY_SEED.read_text())["orders"] if HISTORY_SEED.exists() else []
+    live = json.loads(HISTORY_FILE.read_text()) if HISTORY_FILE.exists() else []
+    return seed + live
+
+
+def our_record(name: str) -> dict | None:
+    past = [h for h in history() if h["supplier"] == name]
+    if not past:
+        return None
+    return {"rating": round(sum(h["rating"] for h in past) / len(past), 1), "orders": len(past), "last_comment": past[-1].get("comment") or ""}
+
+
+def rank(c: dict, weight: float) -> float:
+    record = our_record(c["name"])
+    return round(score(c) + (weight * (record["rating"] - 3) if record else 0), 2)
+
+
+def find_suppliers(request: dict) -> tuple[list[dict], list[dict]]:
     cfg = load_config()
-    found = []
+    found, demoted = [], []
     for key in sorted({i["category"] for i in request["items"]}):
         cat = cfg["categories"][key]
         cache_file = config.CACHE / f"suppliers_{key}.json"
@@ -114,7 +134,11 @@ def find_suppliers(request: dict) -> list[dict]:
         origin = (sum(lats) / len(lats), sum(lngs) / len(lngs)) if lats else None
         allowed = cat.get("google_categories")
         candidates = [c for c in result["carriers"] if c.get("name") and (c.get("phone") or c.get("emails")) and (not allowed or c.get("category") in allowed)]
-        ranked = sorted(candidates, key=score, reverse=True)
+        weight = cfg.get("feedback_weight", 0)
+        ranked = sorted(candidates, key=lambda c: rank(c, weight), reverse=True)
+        by_google = sorted(candidates, key=score, reverse=True)[:SHORTLIST_PER_CATEGORY]
+        shortlist = {c["name"] for c in ranked[:SHORTLIST_PER_CATEGORY]}
+        demoted += [{"name": c["name"], "ours": our_record(c["name"])} for c in by_google if c["name"] not in shortlist and our_record(c["name"])]
         for c in ranked[:SHORTLIST_PER_CATEGORY]:
             found.append({
                 "id": uuid.uuid4().hex[:6],
@@ -130,14 +154,15 @@ def find_suppliers(request: dict) -> list[dict]:
                 "source_url": c.get("source_url"),
                 "address": c.get("address"),
                 "km_from_centre": _distance_km(c, origin),
-                "score": score(c),
+                "score": rank(c, weight),
+                "ours": our_record(c["name"]),
                 "price": None,
                 "in_stock": None,
                 "lead_time_days": None,
                 "unknown": ["price", "stock", "lead time", "export documents"],
             })
         analytics.capture("supplier_search", {"category": key, "n_found": len(result["carriers"]), "n_shortlisted": min(len(ranked), SHORTLIST_PER_CATEGORY)})
-    return found
+    return found, demoted
 
 
 COMPLIANCE_PROMPT = """You prepare a compliance checklist for a humanitarian delivery.
@@ -182,7 +207,9 @@ def _supplier_lines(suppliers: list[dict]) -> str:
     lines = []
     for n, s in enumerate(suppliers, 1):
         rating = f"{s['rating']}★ ({s['reviews']} reviews)" if s.get("rating") else "no rating"
-        lines.append(f"{n}. {s['name']} [{s['category_label']}], {rating}")
+        ours = s.get("ours")
+        past = f" | our past orders: {ours['rating']}/5 ({ours['orders']}), last: {ours['last_comment']}" if ours else ""
+        lines.append(f"{n}. {s['name']} [{s['category_label']}], {rating}{past}")
     return "\n".join(lines)
 
 
@@ -196,9 +223,10 @@ def run_request(text: str) -> None:
         tell_user(f"Got it. Looking for: {items}. Destination: {request.get('destination') or 'unknown'}. Deadline: {request.get('deadline') or 'not given'}. I'll report each step here.")
 
         step("Searching suppliers on Google Maps via Apify")
-        suppliers = find_suppliers(request)
-        update(lambda s: s.update(suppliers=suppliers))
-        tell_user(f"Found suppliers near Prague, ranked by rating, reviews and how reachable they are:\n{_supplier_lines(suppliers)}\nPrices, stock and delivery time are not public. I can call them to ask.")
+        suppliers, demoted = find_suppliers(request)
+        update(lambda s: s.update(suppliers=suppliers, demoted=demoted))
+        skipped = "".join(f"\nLeft out because of our past orders: {d['name']} ({d['ours']['rating']}/5: {d['ours']['last_comment']})." for d in demoted)
+        tell_user(f"Found suppliers near Prague, ranked by Google rating, reviews, reachability and our own past orders:\n{_supplier_lines(suppliers)}{skipped}\nPrices, stock and delivery time are not public. I can call them to ask.")
 
         step("Checking export and import rules")
         compliance = check_compliance(request)
@@ -323,9 +351,34 @@ def finalize() -> None:
     step(f"Order {number} confirmed with {order['supplier_name']}")
     analytics.capture("order_finalized", {"total": order.get("total"), "currency": order.get("currency"), "n_documents": len(order["documents"])})
     tell_user(f"Done. {confirmation}\nAll documents are on file. I sent the confirmation to {order['supplier_name']}.")
+    update(lambda s: s.update(stage="feedback"))
+    tell_user(f"After the pickup: how did it go with {order['supplier_name']}? Reply 1 to 5 (5 = smooth) and a short comment. I use it to rank suppliers next time.")
 
 
-STAGE_HANDLERS = {"offer": _offer_reply, "documents": _documents_reply}
+RATING = re.compile(r"\b([1-5])\b")
+
+
+def _feedback_reply(text: str) -> None:
+    match = RATING.search(text)
+    if not match:
+        tell_user("Please reply with a number from 1 to 5, and a comment if you like.")
+        return
+    order = load()["order"]
+    rating = int(match.group(1))
+    comment = RATING.sub("", text, count=1).strip(" ,.-:/") or ""
+    supplier = next((s for s in load()["suppliers"] if s["id"] == order["supplier_id"]), {})
+    entry = {"supplier": order["supplier_name"], "category": supplier.get("category"), "rating": rating, "comment": comment, "order": order.get("number"), "at": datetime.now().date().isoformat()}
+    with lock:
+        live = json.loads(HISTORY_FILE.read_text()) if HISTORY_FILE.exists() else []
+        HISTORY_FILE.write_text(json.dumps(live + [entry], ensure_ascii=False, indent=2))
+    record = our_record(order["supplier_name"])
+    update(lambda s: s["order"].update(feedback={"rating": rating, "comment": comment}) or s.update(stage="closed"))
+    step(f"Feedback saved: {rating}/5 for {order['supplier_name']}")
+    analytics.capture("supplier_feedback", {"rating": rating, "has_comment": bool(comment), "category": entry["category"]})
+    tell_user(f"Thanks, saved. {order['supplier_name']} now has {record['rating']}/5 from {record['orders']} order(s) with us. {'Next time it ranks higher.' if rating >= 4 else 'Next time it ranks lower.' if rating <= 2 else 'Its ranking stays about the same.'}")
+
+
+STAGE_HANDLERS = {"offer": _offer_reply, "documents": _documents_reply, "feedback": _feedback_reply}
 
 
 def handle_inbound(text: str, sender: str = "web") -> None:

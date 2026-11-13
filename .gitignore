@@ -11,4 +11,5 @@ data/state.json
 data/cache/
 data/procure_state.json
 data/procure_state.tmp
+data/procure_history.json
 data/telegram_chat.json
