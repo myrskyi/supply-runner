@@ -8,9 +8,22 @@ Built by team πrates (Pavlo Myrskyi, Yurii Boiko) at "AI Agents for the Rest of
 
 ## Try it
 
-- In the browser: open the web page, you play both sides. Left is the volunteer chat, right is the agent screen where you answer as the shop. Every visitor gets a private session.
-- On Telegram: message [@pirates_supply_runner_bot](https://t.me/pirates_supply_runner_bot), for example `Need 20 first aid kits with tourniquets and 2 thermal imaging monoculars, own van, Kharkiv, by 20 November`. The bot sends you a link to your shop page when the agent asks for a quote.
-- The shop is played by you, prices are not real. Attached documents are specimen PDFs.
+**Live demo: [supply-runner.onrender.com](https://supply-runner.onrender.com)** (free hosting, the first load after a pause can take up to a minute).
+
+You play both sides: the volunteer chat on the left and the shop on the agent screen on the right. Every visitor gets a private session. The whole run takes about 2 minutes:
+
+1. Left, click **Use example request** (20 first aid kits and 2 thermal imagers to Kharkiv). The agent ranks real shops near Prague, excludes one with a bad past order, and lists the paperwork, led by a 30-day dual-use export licence.
+2. Left, click **💬 Ask C.I.D Praha s.r.o. for a quote**. The agent writes to the shop on the right.
+3. Right, you are the shop now: click **Example**, then **Send**. The agent reads the reply and brings an offer back to the left.
+4. Left, click **✅ Accept offer**. The agent asks for the documents this shipment legally needs and sends a purchase order PDF.
+5. Left, click **📎 Attach demo documents**. Each document ticks off, the order is confirmed with a PDF.
+6. Left, rate the shop **1 to 5 ⭐**. The rating changes the ranking for the next search.
+
+Use **start over** to run it again. You can type your own request or a counter offer (for example `max 20000 CZK, pickup tomorrow`) instead of clicking.
+
+Prefer Telegram? Message [@pirates_supply_runner_bot](https://t.me/pirates_supply_runner_bot) with a request. When the agent asks for a quote, the bot sends you a link to your shop page, and you can attach the PDFs from `data/documents/`.
+
+The shop is played by you and prices are not real. Past orders are seeded and the documents are specimen PDFs.
 
 ## Why
 
