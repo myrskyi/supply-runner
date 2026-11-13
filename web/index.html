@@ -67,9 +67,10 @@ a { color:#2563eb; }
   </section>
   <section>
     <div class="card" id="requestCard"></div>
+    <div class="card" id="orderCard" style="display:none"></div>
+    <div class="card"><h2>Supplier line</h2><div id="calls"></div></div>
     <div class="card"><h2>Suppliers</h2><div id="suppliers"></div></div>
     <div class="card"><h2>Paperwork and rules</h2><div id="compliance"></div></div>
-    <div class="card"><h2>Calls</h2><div id="calls"></div></div>
     <div class="card"><h2>The agent learns</h2><div id="eval"></div></div>
     <div class="row"><button class="secondary" onclick="post('/api/procure/reset')">Reset demo</button><a class="small" href="/mission">Previous version: carrier for a mission</a></div>
   </section>
@@ -99,7 +100,7 @@ function render() {
   const i = state.integrations;
   $("badges").innerHTML = [["telegram", "Telegram"], ["whatsapp", "WhatsApp"], ["voice", "Voice calls"], ["apify", "Apify"], ["featherless", "Featherless"], ["posthog", "PostHog"]]
     .map(([k, label]) => `<span class="badge ${i[k] ? "on" : ""}">${label}${i[k] ? "" : " · off"}</span>`).join("");
-  renderChat(); renderRequest(); renderSuppliers(); renderCompliance(); renderCalls(); renderEval();
+  renderChat(); renderRequest(); renderSuppliers(); renderCompliance(); renderCalls(); renderOrder(); renderEval();
 }
 
 function renderChat() {
@@ -114,7 +115,7 @@ function renderChat() {
 
 function renderRequest() {
   const r = state.request;
-  const stage = { idle: "Waiting for a request", working: "Agent is working", waiting: "Waiting for the coordinator", error: "Needs a human" }[state.stage] || state.stage;
+  const stage = { idle: "Waiting for a request", working: "Agent is working", waiting: "Waiting for the coordinator", offer: "Offer sent to the coordinator", negotiating: "Negotiating", documents: "Collecting documents", ordered: "Order confirmed", error: "Needs a human" }[state.stage] || state.stage;
   const steps = state.steps.map(s => `<div><span class="t">${esc(s.at)}</span>${esc(s.text)}</div>`).join("");
   $("requestCard").innerHTML = `<h2>Request · ${esc(stage)}</h2>` + (r ? `
     <div><b>${r.items.map(it => `${esc(it.quantity ?? "")} ${esc(it.name)} <span class="chip ${it.category === "dual_use" ? "warn" : "unk"}">${esc(it.category === "dual_use" ? "dual-use" : it.category)}</span>`).join(" · ")}</b></div>
@@ -165,6 +166,17 @@ function renderCalls() {
       ${c.facts && c.facts.summary ? `<div class="small" style="margin-top:6px">Learned: ${esc(c.facts.summary)}</div>` : ""}
     </div>`;
   }).join("");
+}
+function renderOrder() {
+  const o = state.order, card = $("orderCard");
+  if (!o) { card.style.display = "none"; return; }
+  card.style.display = "";
+  const status = { offer: "waiting for the coordinator", negotiating: "negotiating with the supplier", documents: "collecting documents and payment", ordered: "confirmed" }[o.status] || o.status;
+  const money = o.unit_price != null ? `${esc(o.unit_price)} ${esc(o.currency)} / unit${o.total ? ` · total <b>${esc(o.total)} ${esc(o.currency)}</b>` : ""}` : `<span class="chip unk">price unknown</span>`;
+  card.innerHTML = `<h2>Order${o.number ? " " + esc(o.number) : ""} · ${esc(status)}</h2>
+    <div><b>${esc(o.supplier_name)}</b>: ${esc(o.items)}</div>
+    <div>${money} · ${o.lead_time_days != null ? `ready in ${esc(o.lead_time_days)} d` : "pickup date unknown"}${o.pickup ? ` · pickup <b>${esc(o.pickup)}</b>` : ""}</div>
+    <div class="steps" style="margin-top:8px">${o.documents.map(d => `<div><span class="chip ${d.received ? "ok" : "unk"}">${d.received ? "received" : "missing"}</span> ${esc(d.name)}</div>`).join("")}</div>`;
 }
 function say(id) { const el = $("say-" + id); const text = el.value.trim(); el.blur(); if (text) post(`/api/procure/call/${id}/say`, { text }); }
 

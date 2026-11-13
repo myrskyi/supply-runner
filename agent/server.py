@@ -261,6 +261,9 @@ def procure_call(supplier_id: str, simulated: bool = False):
 
 @app.post("/api/procure/call/{call_id}/say")
 def procure_call_say(call_id: str, body: SayBody):
+    call = next((c for c in procure.load()["calls"] if c["id"] == call_id), None)
+    if call is None or call["status"] in ("done", "finishing", "no answer"):
+        raise HTTPException(409, "call is over")
     reply = voice.turn(call_id, body.text.strip() or None)
     if reply["done"]:
         voice.finish(call_id)

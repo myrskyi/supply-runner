@@ -46,7 +46,11 @@ def _poll(on_message) -> None:
             for update in r.json().get("result", []):
                 offset = update["update_id"] + 1
                 message = update.get("message") or {}
-                text = (message.get("text") or "").strip()
+                text = (message.get("text") or message.get("caption") or "").strip()
+                if message.get("document"):
+                    text = f"{text} [attached file: {message['document'].get('file_name', 'document')}]".strip()
+                elif message.get("photo"):
+                    text = f"{text} [attached photo]".strip()
                 if not text:
                     continue
                 CHAT_FILE.write_text(json.dumps({"chat_id": message["chat"]["id"]}))

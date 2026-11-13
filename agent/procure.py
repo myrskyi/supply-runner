@@ -26,7 +26,7 @@ def load_compliance() -> dict:
 
 
 def empty_state() -> dict:
-    return {"stage": "idle", "request": None, "messages": [], "suppliers": [], "compliance": None, "calls": [], "steps": []}
+    return {"stage": "idle", "request": None, "messages": [], "suppliers": [], "compliance": None, "calls": [], "steps": [], "order": None}
 
 
 def load() -> dict:
@@ -216,6 +216,116 @@ def run_request(text: str) -> None:
 CALL_COMMAND = re.compile(r"^\s*call\s+(\d+)\s*$", re.IGNORECASE)
 
 
+def _items_for(state: dict, category: str) -> list[dict]:
+    return [i for i in (state.get("request") or {}).get("items", []) if i["category"] == category]
+
+
+def present_offer(call_id: str) -> None:
+    state = load()
+    call = next(c for c in state["calls"] if c["id"] == call_id)
+    supplier = next(s for s in state["suppliers"] if s["id"] == call["supplier_id"])
+    facts = call.get("facts") or {}
+    quantity = sum(i.get("quantity") or 0 for i in _items_for(state, supplier["category"])) or None
+    price = facts.get("unit_price")
+    total = price * quantity if price is not None and quantity else None
+    rules = [c for c in (state.get("compliance") or {}).get("checklist", []) if c["applies"] and c.get("requester_document")]
+    order = {
+        "supplier_id": supplier["id"], "supplier_name": supplier["name"], "call_id": call_id, "status": "offer",
+        "items": ", ".join(f"{i.get('quantity') or ''} {i['name']}".strip() for i in _items_for(state, supplier["category"])),
+        "unit_price": price, "currency": facts.get("currency") or "", "quantity": quantity, "total": total,
+        "lead_time_days": facts.get("lead_time_days"), "in_stock": facts.get("in_stock"), "supplier_documents": facts.get("documents"),
+        "documents": [{"id": r["id"], "name": r["requester_document"], "received": False} for r in rules] + [{"id": "payment", "name": "Payment confirmation (bank transfer or receipt)", "received": False}],
+    }
+    update(lambda s: s.update(order=order, stage="offer"))
+    step(f"Offer from {supplier['name']} sent to the coordinator for approval")
+    price_text = f"{price} {order['currency']} per unit" + (f", total {total} {order['currency']}" if total else "") if price is not None else "price not confirmed"
+    lead = f"ready for pickup in {order['lead_time_days']} days" if order["lead_time_days"] is not None else "pickup date not confirmed"
+    tell_user(
+        f"Offer from {supplier['name']} for {order['items']}: {price_text}, {lead}. "
+        f"Supplier provides: {order['supplier_documents'] or 'not confirmed'}.\n"
+        "Reply YES to accept, or tell me what to negotiate (for example: max 20000 CZK, pickup by 18 November)."
+    )
+
+
+OFFER_PROMPT = """The coordinator received a supplier offer: {offer}
+Their reply: "{text}"
+Return one JSON object: {{"decision": "accept" or "counter" or "unclear", "counter": if counter, one short English instruction for our agent to negotiate with the supplier, else ""}}
+Return only the JSON."""
+
+
+def _offer_reply(text: str) -> None:
+    order = load()["order"]
+    offer = {k: order[k] for k in ("supplier_name", "items", "unit_price", "currency", "total", "lead_time_days")}
+    answer, _ = llm.chat_json([{"role": "user", "content": OFFER_PROMPT.format(offer=json.dumps(offer, ensure_ascii=False), text=text)}], config.MODEL_EXTRACT, props={"stage": "offer_reply"})
+    decision = answer.get("decision")
+    if decision == "accept":
+        update(lambda s: s["order"].update(status="documents") or s.update(stage="documents"))
+        step("Coordinator accepted the offer, collecting documents and payment")
+        analytics.capture("offer_accepted", {"total": order["total"], "currency": order["currency"]})
+        missing = "\n".join(f"- {d['name']}" for d in order["documents"])
+        tell_user(f"Agreed. To finalise the order with {order['supplier_name']} I need from you:\n{missing}\nSend them here as files, photos or a short note.")
+    elif decision == "counter" and answer.get("counter"):
+        from . import voice
+
+        update(lambda s: s["order"].update(status="negotiating") or s.update(stage="negotiating"))
+        step(f"Negotiating with {order['supplier_name']}: {answer['counter']}")
+        analytics.capture("offer_countered", {})
+        tell_user(f"OK, I'll go back to {order['supplier_name']}: {answer['counter']}")
+        voice.resume(order["call_id"], answer["counter"])
+    else:
+        tell_user("Reply YES to accept the offer, or tell me what price or date to negotiate.")
+
+
+DOCS_PROMPT = """We are collecting documents from a coordinator. Still missing:
+{missing}
+The coordinator just sent: "{text}"
+Which of the missing items does this message provide or clearly confirm? Return one JSON object: {{"received": [ids]}}. Return only the JSON."""
+
+
+def _documents_reply(text: str) -> None:
+    order = load()["order"]
+    missing = [d for d in order["documents"] if not d["received"]]
+    answer, _ = llm.chat_json([{"role": "user", "content": DOCS_PROMPT.format(missing=json.dumps([{"id": d["id"], "name": d["name"]} for d in missing]), text=text)}], config.MODEL_EXTRACT, props={"stage": "documents"})
+    got = set(answer.get("received") or []) & {d["id"] for d in missing}
+
+    def mark(s):
+        for d in s["order"]["documents"]:
+            if d["id"] in got:
+                d.update(received=True, at=_now())
+
+    order = update(mark)["order"]
+    still = [d for d in order["documents"] if not d["received"]]
+    names = ", ".join(d["name"] for d in order["documents"] if d["id"] in got)
+    if names:
+        step(f"Received: {names}")
+    if still:
+        prefix = f"Got it: {names}." if names else "I couldn't match that to a missing document."
+        tell_user(prefix + "\nStill missing:\n" + "\n".join(f"- {d['name']}" for d in still))
+    else:
+        finalize()
+
+
+def finalize() -> None:
+    order = load()["order"]
+    number = "SR-" + uuid.uuid4().hex[:6].upper()
+    pickup = None
+    if order.get("lead_time_days") is not None:
+        from datetime import timedelta
+
+        pickup = (datetime.now() + timedelta(days=int(order["lead_time_days"]))).strftime("%a %d %b")
+    update(lambda s: s["order"].update(status="ordered", number=number, pickup=pickup) or s.update(stage="ordered"))
+    confirmation = f"Order {number} confirmed: {order['items']}" + (f", {order['total']} {order['currency']} paid" if order.get("total") else "") + (f", pickup {pickup}" if pickup else "") + ". Our van driver will bring the power of attorney."
+    from . import voice
+
+    voice.notify_supplier(order["call_id"], confirmation)
+    step(f"Order {number} confirmed with {order['supplier_name']}")
+    analytics.capture("order_finalized", {"total": order.get("total"), "currency": order.get("currency"), "n_documents": len(order["documents"])})
+    tell_user(f"Done. {confirmation}\nAll documents are on file. I sent the confirmation to {order['supplier_name']}.")
+
+
+STAGE_HANDLERS = {"offer": _offer_reply, "documents": _documents_reply}
+
+
 def handle_inbound(text: str, sender: str = "web") -> None:
     update(lambda s: s["messages"].append({"dir": "in", "at": _now(), "text": text, "from": sender}))
     analytics.capture("chat_inbound", {"channel": sender.split(":")[0], "length": len(text)})
@@ -230,8 +340,12 @@ def handle_inbound(text: str, sender: str = "web") -> None:
         else:
             tell_user("I don't have a supplier with that number.")
         return
-    if load()["stage"] == "working":
-        tell_user("Still working on your previous request, I'll update you shortly.")
+    stage = load()["stage"]
+    if stage in STAGE_HANDLERS:
+        threading.Thread(target=STAGE_HANDLERS[stage], args=(text,), daemon=True).start()
         return
-    update(lambda s: s.update(request=None, suppliers=[], compliance=None, calls=[], steps=[]))
+    if stage in ("working", "negotiating"):
+        tell_user("Still working on it, I'll update you shortly.")
+        return
+    update(lambda s: s.update(request=None, suppliers=[], compliance=None, calls=[], steps=[], order=None))
     threading.Thread(target=run_request, args=(text,), daemon=True).start()

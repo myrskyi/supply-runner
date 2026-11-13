@@ -4,7 +4,7 @@ import uuid
 
 from . import analytics, config, llm, messaging, procure
 
-MAX_TURNS = 8
+MAX_TURNS = 14
 
 AGENT_PROMPT = """You are an assistant phoning a supplier on behalf of a humanitarian organisation from Ukraine.
 Supplier: {supplier}.
@@ -16,6 +16,7 @@ Paperwork we must check ourselves: {documents}. Do not ask the supplier about li
 Rules: be polite and brief, at most 2 short sentences per turn, ask one thing at a time, never ask again what the supplier
 already answered, never invent facts, never agree to buy or pay. When you know the answers, or the supplier cannot help,
 thank them and end.
+Instructions from our coordinator (follow them, they override earlier answers): {instructions}
 
 Conversation so far:
 {transcript}
@@ -98,6 +99,7 @@ def turn(call_id: str, supplier_said: str | None) -> dict:
         prompt = AGENT_PROMPT.format(
             supplier=supplier["name"], items=items or "the items", destination=request.get("destination") or "Ukraine",
             documents=documents or "invoice and packing list", transcript=_transcript(call),
+            instructions="; ".join(call.get("instructions") or []) or "none",
         )
         try:
             answer, _ = llm.chat_json([{"role": "user", "content": prompt}], config.MODEL_EXTRACT, props={"stage": "voice_turn", "call_id": call_id})
@@ -132,10 +134,21 @@ def finish(call_id: str) -> None:
 
     procure.update(apply)
     analytics.capture("supplier_call_finished", {"turns": len(call["transcript"]), "got_price": facts.get("unit_price") is not None, "got_lead_time": facts.get("lead_time_days") is not None})
-    price = f"{facts['unit_price']} {facts.get('currency') or ''} per unit" if facts.get("unit_price") is not None else "price unknown"
-    stock = {True: "in stock", False: "not in stock", None: "stock unknown"}[facts.get("in_stock")]
-    lead = f"ready in {facts['lead_time_days']} days" if facts.get("lead_time_days") is not None else "lead time unknown"
-    procure.tell_user(f"Call with {call['supplier_name']} (demo line) done: {price}, {stock}, {lead}. Documents: {facts.get('documents') or 'not confirmed'}. {facts.get('summary') or ''}".strip())
+    procure.present_offer(call_id)
+
+
+def resume(call_id: str, instruction: str) -> None:
+    """Goes back to the same supplier with a counter from the coordinator."""
+    procure.update(lambda s: _call(s, call_id).update(status="talking", facts=None, simulated=True, instructions=(_call(s, call_id).get("instructions") or []) + [instruction]))
+    turn(call_id, None)
+
+
+def notify_supplier(call_id: str, text: str) -> None:
+    def add(s):
+        call = _call(s, call_id)
+        call["transcript"].append({"who": "agent", "text": text})
+
+    procure.update(add)
 
 
 def twiml(call_id: str, reply: dict) -> str:
