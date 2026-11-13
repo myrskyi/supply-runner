@@ -25,7 +25,7 @@ def chat_id() -> int | None:
     return json.loads(CHAT_FILE.read_text()).get("chat_id") if CHAT_FILE.exists() else None
 
 
-def send(text: str, buttons: list[tuple[str, str]] | None = None) -> str:
+def send(text: str, buttons: list | None = None) -> str:
     chat = chat_id()
     if not (TOKEN and chat):
         return "not configured" if not TOKEN else "no chat yet"
@@ -34,7 +34,7 @@ def send(text: str, buttons: list[tuple[str, str]] | None = None) -> str:
         for n, chunk in enumerate(chunks):
             body = {"chat_id": chat, "text": chunk}
             if buttons and n == len(chunks) - 1:
-                body["reply_markup"] = {"inline_keyboard": [[{"text": label, "callback_data": data}] for label, data in buttons]}
+                body["reply_markup"] = {"inline_keyboard": [[{"text": label, "callback_data": data} for label, data in (row if isinstance(row, list) else [row])] for row in buttons]}
             r = requests.post(f"{API}/sendMessage", json=body, timeout=15)
             r.raise_for_status()
         return "sent"

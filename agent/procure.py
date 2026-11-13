@@ -62,7 +62,7 @@ def send_file(path, caption: str = "") -> None:
     update(lambda s: s["messages"].append({"dir": "out", "at": _now(), "text": f"[file: {path.name}] {caption}".strip(), "delivery": delivery}))
 
 
-def tell_user(text: str, buttons: list[tuple[str, str]] | None = None) -> None:
+def tell_user(text: str, buttons: list | None = None) -> None:
     delivery = telegram.send(text, buttons) if telegram.ready() else messaging.send_whatsapp(text)
     update(lambda s: s["messages"].append({"dir": "out", "at": _now(), "text": text, "delivery": delivery}))
 
@@ -394,7 +394,7 @@ def finalize() -> None:
     tell_user(f"✅ Order {number} confirmed\n{order['items']}{paid}\n" + (f"Pickup {pickup} at {short_name(order['supplier_name'])}\n" if pickup else "") + "\nAll documents on file. Supplier notified.")
     send_file(paperwork.order_confirmation(load()["order"]), f"Order {number} confirmation")
     update(lambda s: s.update(stage="feedback"))
-    tell_user(f"After pickup: how did it go with {short_name(order['supplier_name'])}?\nRate 1 to 5 with a short comment. It shapes the supplier ranking next time.")
+    tell_user(f"After pickup: how did it go with {short_name(order['supplier_name'])}?\nRate 1 to 5, a comment is welcome. It shapes the supplier ranking next time.", [[(f"{n} ⭐", str(n)) for n in range(1, 6)]])
 
 
 RATING = re.compile(r"\b([1-5])\b")
