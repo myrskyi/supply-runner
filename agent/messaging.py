@@ -16,6 +16,7 @@ WHATSAPP_LIMIT = 1500
 TEMPLATE_SID = os.getenv("TWILIO_WHATSAPP_TEMPLATE_SID", "").strip()
 TEMPLATE_VAR = os.getenv("TWILIO_WHATSAPP_TEMPLATE_VAR", "1").strip()
 TEMPLATE_LIMIT = 900
+OUTBOUND = os.getenv("TWILIO_WHATSAPP_OUTBOUND", "1").strip() != "0"
 
 _client = None
 
@@ -41,6 +42,8 @@ def send_whatsapp(text: str, to: str | None = None) -> str:
     to = to or USER_WHATSAPP
     if not (client() and to):
         return "not configured"
+    if not OUTBOUND:
+        return "on screen only"
     try:
         if TEMPLATE_SID:
             flat = re.sub(r"\s*\n\s*", " | ", text)
