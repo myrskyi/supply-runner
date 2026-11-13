@@ -42,6 +42,19 @@ def send(text: str, buttons: list[tuple[str, str]] | None = None) -> str:
         return f"failed: {e}"
 
 
+def send_document(path, caption: str = "") -> str:
+    chat = chat_id()
+    if not (TOKEN and chat):
+        return "not configured" if not TOKEN else "no chat yet"
+    try:
+        with open(path, "rb") as f:
+            r = requests.post(f"{API}/sendDocument", data={"chat_id": chat, "caption": caption}, files={"document": f}, timeout=30)
+        r.raise_for_status()
+        return "sent"
+    except Exception as e:
+        return f"failed: {e}"
+
+
 def _poll(on_message) -> None:
     offset = None
     while True:

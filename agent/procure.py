@@ -7,7 +7,7 @@ import threading
 import uuid
 from datetime import datetime
 
-from . import analytics, config, llm, messaging, search, telegram
+from . import analytics, config, llm, messaging, paperwork, search, telegram
 
 CONFIG_FILE = config.DATA / "procure" / "config.json"
 COMPLIANCE_FILE = config.DATA / "procure" / "compliance.json"
@@ -55,6 +55,11 @@ def update(mutate) -> dict:
 
 def step(text: str) -> None:
     update(lambda s: s["steps"].append({"at": _now(), "text": text}))
+
+
+def send_file(path, caption: str = "") -> None:
+    delivery = telegram.send_document(path, caption) if telegram.ready() else "not sent"
+    update(lambda s: s["messages"].append({"dir": "out", "at": _now(), "text": f"[file: {path.name}] {caption}".strip(), "delivery": delivery}))
 
 
 def tell_user(text: str, buttons: list[tuple[str, str]] | None = None) -> None:
@@ -318,6 +323,7 @@ def _offer_reply(text: str) -> None:
         analytics.capture("offer_accepted", {"total": order["total"], "currency": order["currency"]})
         missing = _bullets(d["name"] for d in order["documents"])
         tell_user(f"Accepted. To place the order, send:\n{missing}\n\nFiles, photos or a short note are fine.")
+        send_file(paperwork.purchase_order(order), "Purchase order draft")
     elif decision == "counter" and answer.get("counter"):
         from . import voice
 
@@ -333,10 +339,20 @@ def _offer_reply(text: str) -> None:
 DOCS_PROMPT = """We are collecting documents from a coordinator. Still missing:
 {missing}
 The coordinator just sent: "{text}"
-Which of the missing items does this message provide or clearly confirm? Return one JSON object: {{"received": [ids]}}. Return only the JSON."""
+Which of the missing items does this message provide? Count an item only if the message attaches a file whose name matches it,
+or names that specific document, or (for payment) says the payment was made. Vague phrases like "docs ready" or a rating do not count. Return one JSON object: {{"received": [ids]}}. Return only the JSON."""
+
+
+docs_lock = threading.Lock()
 
 
 def _documents_reply(text: str) -> None:
+    with docs_lock:
+        if load()["stage"] == "documents":
+            _match_documents(text)
+
+
+def _match_documents(text: str) -> None:
     order = load()["order"]
     missing = [d for d in order["documents"] if not d["received"]]
     answer, _ = llm.chat_json([{"role": "user", "content": DOCS_PROMPT.format(missing=json.dumps([{"id": d["id"], "name": d["name"]} for d in missing]), text=text)}], config.MODEL_EXTRACT, props={"stage": "documents"})
@@ -376,6 +392,7 @@ def finalize() -> None:
     analytics.capture("order_finalized", {"total": order.get("total"), "currency": order.get("currency"), "n_documents": len(order["documents"])})
     paid = f"\n{order['total']} {order['currency']} paid" if order.get("total") else ""
     tell_user(f"✅ Order {number} confirmed\n{order['items']}{paid}\n" + (f"Pickup {pickup} at {short_name(order['supplier_name'])}\n" if pickup else "") + "\nAll documents on file. Supplier notified.")
+    send_file(paperwork.order_confirmation(load()["order"]), f"Order {number} confirmation")
     update(lambda s: s.update(stage="feedback"))
     tell_user(f"After pickup: how did it go with {short_name(order['supplier_name'])}?\nRate 1 to 5 with a short comment. It shapes the supplier ranking next time.")
 
