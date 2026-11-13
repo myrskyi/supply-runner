@@ -203,14 +203,22 @@ def check_compliance(request: dict) -> dict:
     return {"checklist": checklist, "summary": summary, "longest_lead_days": longest, "disclaimer": knowledge["disclaimer"]}
 
 
+def short_name(name: str) -> str:
+    return " ".join(re.split(r"\s+[-–|]\s+|,\s", name)[0].split()[:4])
+
+
+def _bullets(lines) -> str:
+    return "\n".join(f"• {line}" for line in lines)
+
+
 def _supplier_lines(suppliers: list[dict]) -> str:
-    lines = []
+    groups: dict[str, list[str]] = {}
     for n, s in enumerate(suppliers, 1):
-        rating = f"{s['rating']}★ ({s['reviews']} reviews)" if s.get("rating") else "no rating"
+        rating = f"{s['rating']}★ ({s['reviews']})" if s.get("rating") else "no rating"
         ours = s.get("ours")
-        past = f" | our past orders: {ours['rating']}/5 ({ours['orders']}), last: {ours['last_comment']}" if ours else ""
-        lines.append(f"{n}. {s['name']} [{s['category_label']}], {rating}{past}")
-    return "\n".join(lines)
+        past = f" · our orders {ours['rating']:g}/5" if ours else ""
+        groups.setdefault(s["category_label"], []).append(f"{n}. {short_name(s['name'])} · {rating}{past}")
+    return "\n\n".join(f"{label}\n" + "\n".join(lines) for label, lines in groups.items())
 
 
 def run_request(text: str) -> None:
@@ -220,22 +228,25 @@ def run_request(text: str) -> None:
         request = parse_request(text)
         update(lambda s: s.update(request=request))
         items = ", ".join(f"{i['quantity'] or ''} {i['name']}".strip() for i in request["items"]) or "nothing I recognise"
-        tell_user(f"Got it. Looking for: {items}. Destination: {request.get('destination') or 'unknown'}. Deadline: {request.get('deadline') or 'not given'}. I'll report each step here.")
+        trip = " · ".join(x for x in (f"To {request['destination']}" if request.get("destination") else "", f"by {datetime.fromisoformat(request['deadline']).strftime('%-d %b')}" if request.get("deadline") else "", "own van" if request.get("own_transport") else "") if x)
+        wanted = _bullets(f"{i['quantity']} × {i['name']}" if i["quantity"] else i["name"] for i in request["items"]) or "No items recognised"
+        tell_user(f"Request received\n{wanted}\n{trip}\n\nSearching suppliers and checking paperwork.")
 
         step("Searching suppliers on Google Maps via Apify")
         suppliers, demoted = find_suppliers(request)
         update(lambda s: s.update(suppliers=suppliers, demoted=demoted))
-        skipped = "".join(f"\nLeft out because of our past orders: {d['name']} ({d['ours']['rating']}/5: {d['ours']['last_comment']})." for d in demoted)
-        tell_user(f"Found suppliers near Prague, ranked by Google rating, reviews, reachability and our own past orders:\n{_supplier_lines(suppliers)}{skipped}\nPrices, stock and delivery time are not public. I can call them to ask.")
+        skipped = "".join(f"\n\nExcluded: {short_name(d['name'])}, our orders {d['ours']['rating']:g}/5 ({d['ours']['last_comment']})" for d in demoted)
+        tell_user(f"Suppliers near Prague\n\n{_supplier_lines(suppliers)}{skipped}")
 
         step("Checking export and import rules")
         compliance = check_compliance(request)
         update(lambda s: s.update(compliance=compliance))
         applicable = [c for c in compliance["checklist"] if c["applies"]]
-        lines = "\n".join(f"- {c['title']} ({c['authority']}, ~{c['lead_time_days']} d)" for c in applicable)
-        tell_user(f"Paperwork you need:\n{lines}\nLongest item: ~{compliance['longest_lead_days']} days. {compliance['summary']}".strip())
+        longest = max(applicable, key=lambda c: c["lead_time_days"], default=None)
+        docs = _bullets(f"{c['title']} · ~{c['lead_time_days']} d" for c in applicable)
+        tell_user(f"Paperwork\n{docs}" + (f"\n\nStart first: {longest['title']} (~{longest['lead_time_days']} days)" if longest else ""))
 
-        tell_user("Reply CALL <number> and I'll phone that supplier to confirm price, stock, delivery time and export documents.")
+        tell_user("Reply CALL and a number (e.g. CALL 1) and I will get price, stock and pickup date from that supplier.")
         update(lambda s: s.update(stage="waiting"))
     except Exception as e:
         step(f"Failed: {e}")
@@ -261,19 +272,18 @@ def present_offer(call_id: str) -> None:
     rules = [c for c in (state.get("compliance") or {}).get("checklist", []) if c["applies"] and c.get("requester_document")]
     order = {
         "supplier_id": supplier["id"], "supplier_name": supplier["name"], "call_id": call_id, "status": "offer",
-        "items": ", ".join(f"{i.get('quantity') or ''} {i['name']}".strip() for i in _items_for(state, supplier["category"])),
+        "items": ", ".join(f"{i['quantity']} × {i['name']}" if i.get("quantity") else i["name"] for i in _items_for(state, supplier["category"])),
         "unit_price": price, "currency": facts.get("currency") or "", "quantity": quantity, "total": total,
         "lead_time_days": facts.get("lead_time_days"), "in_stock": facts.get("in_stock"), "supplier_documents": facts.get("documents"),
         "documents": [{"id": r["id"], "name": r["requester_document"], "received": False} for r in rules] + [{"id": "payment", "name": "Payment confirmation (bank transfer or receipt)", "received": False}],
     }
     update(lambda s: s.update(order=order, stage="offer"))
     step(f"Offer from {supplier['name']} sent to the coordinator for approval")
-    price_text = f"{price} {order['currency']} per unit" + (f", total {total} {order['currency']}" if total else "") if price is not None else "price not confirmed"
-    lead = f"ready for pickup in {order['lead_time_days']} days" if order["lead_time_days"] is not None else "pickup date not confirmed"
+    price_text = f"{price} {order['currency']} per unit" + (f", total {total} {order['currency']}" if total else "") if price is not None else "Price not confirmed"
+    lead = f"Pickup in {order['lead_time_days']} day{'' if order['lead_time_days'] == 1 else 's'}" if order["lead_time_days"] is not None else "Pickup date not confirmed"
     tell_user(
-        f"Offer from {supplier['name']} for {order['items']}: {price_text}, {lead}. "
-        f"Supplier provides: {order['supplier_documents'] or 'not confirmed'}.\n"
-        "Reply YES to accept, or tell me what to negotiate (for example: max 20000 CZK, pickup by 18 November)."
+        f"Offer from {short_name(supplier['name'])}\n{order['items']}\n{price_text}\n{lead}\nDocuments: {order['supplier_documents'] or 'not confirmed'}\n\n"
+        "Reply YES to accept, or send a counter (e.g. max 20000 CZK, pickup tomorrow)."
     )
 
 
@@ -292,18 +302,18 @@ def _offer_reply(text: str) -> None:
         update(lambda s: s["order"].update(status="documents") or s.update(stage="documents"))
         step("Coordinator accepted the offer, collecting documents and payment")
         analytics.capture("offer_accepted", {"total": order["total"], "currency": order["currency"]})
-        missing = "\n".join(f"- {d['name']}" for d in order["documents"])
-        tell_user(f"Agreed. To finalise the order with {order['supplier_name']} I need from you:\n{missing}\nSend them here as files, photos or a short note.")
+        missing = _bullets(d["name"] for d in order["documents"])
+        tell_user(f"Accepted. To place the order, send:\n{missing}\n\nFiles, photos or a short note are fine.")
     elif decision == "counter" and answer.get("counter"):
         from . import voice
 
         update(lambda s: s["order"].update(status="negotiating") or s.update(stage="negotiating"))
         step(f"Negotiating with {order['supplier_name']}: {answer['counter']}")
         analytics.capture("offer_countered", {})
-        tell_user(f"OK, I'll go back to {order['supplier_name']}: {answer['counter']}")
+        tell_user(f"Negotiating with {short_name(order['supplier_name'])}: {answer['counter']}")
         voice.resume(order["call_id"], answer["counter"])
     else:
-        tell_user("Reply YES to accept the offer, or tell me what price or date to negotiate.")
+        tell_user("Reply YES to accept, or send a counter (price or date).")
 
 
 DOCS_PROMPT = """We are collecting documents from a coordinator. Still missing:
@@ -329,8 +339,8 @@ def _documents_reply(text: str) -> None:
     if names:
         step(f"Received: {names}")
     if still:
-        prefix = f"Got it: {names}." if names else "I couldn't match that to a missing document."
-        tell_user(prefix + "\nStill missing:\n" + "\n".join(f"- {d['name']}" for d in still))
+        prefix = f"Received: {names}" if names else "Could not match that to a missing document."
+        tell_user(prefix + "\n\nStill needed:\n" + _bullets(d["name"] for d in still))
     else:
         finalize()
 
@@ -350,9 +360,10 @@ def finalize() -> None:
     voice.notify_supplier(order["call_id"], confirmation)
     step(f"Order {number} confirmed with {order['supplier_name']}")
     analytics.capture("order_finalized", {"total": order.get("total"), "currency": order.get("currency"), "n_documents": len(order["documents"])})
-    tell_user(f"Done. {confirmation}\nAll documents are on file. I sent the confirmation to {order['supplier_name']}.")
+    paid = f"\n{order['total']} {order['currency']} paid" if order.get("total") else ""
+    tell_user(f"✅ Order {number} confirmed\n{order['items']}{paid}\n" + (f"Pickup {pickup} at {short_name(order['supplier_name'])}\n" if pickup else "") + "\nAll documents on file. Supplier notified.")
     update(lambda s: s.update(stage="feedback"))
-    tell_user(f"After the pickup: how did it go with {order['supplier_name']}? Reply 1 to 5 (5 = smooth) and a short comment. I use it to rank suppliers next time.")
+    tell_user(f"After pickup: how did it go with {short_name(order['supplier_name'])}?\nRate 1 to 5 with a short comment. It shapes the supplier ranking next time.")
 
 
 RATING = re.compile(r"\b([1-5])\b")
@@ -361,7 +372,7 @@ RATING = re.compile(r"\b([1-5])\b")
 def _feedback_reply(text: str) -> None:
     match = RATING.search(text)
     if not match:
-        tell_user("Please reply with a number from 1 to 5, and a comment if you like.")
+        tell_user("Please reply with a number from 1 to 5.")
         return
     order = load()["order"]
     rating = int(match.group(1))
@@ -375,7 +386,7 @@ def _feedback_reply(text: str) -> None:
     update(lambda s: s["order"].update(feedback={"rating": rating, "comment": comment}) or s.update(stage="closed"))
     step(f"Feedback saved: {rating}/5 for {order['supplier_name']}")
     analytics.capture("supplier_feedback", {"rating": rating, "has_comment": bool(comment), "category": entry["category"]})
-    tell_user(f"Thanks, saved. {order['supplier_name']} now has {record['rating']}/5 from {record['orders']} order(s) with us. {'Next time it ranks higher.' if rating >= 4 else 'Next time it ranks lower.' if rating <= 2 else 'Its ranking stays about the same.'}")
+    tell_user(f"Thanks, saved.\n{short_name(order['supplier_name'])}: {record['rating']:g}/5 from {record['orders']} order(s) with us. {'Ranks higher next time.' if rating >= 4 else 'Ranks lower next time.' if rating <= 2 else 'Ranking stays about the same.'}")
 
 
 STAGE_HANDLERS = {"offer": _offer_reply, "documents": _documents_reply, "feedback": _feedback_reply}

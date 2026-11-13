@@ -62,7 +62,7 @@ def start_call(supplier_id: str, simulated: bool = False) -> str | None:
     }
     procure.update(lambda s: s["calls"].append(call))
     procure.step(f"Calling {supplier['name']} (demo line, a teammate plays the supplier)")
-    procure.tell_user(f"Calling {supplier['name']} now. (Demo: the call goes to a teammate playing the supplier.)")
+    procure.tell_user(f"📞 Calling {procure.short_name(supplier['name'])} for price, stock and pickup date.")
     analytics.capture("supplier_call_started", {"simulated": simulated, "category": supplier["category"]})
     if not simulated:
         try:
