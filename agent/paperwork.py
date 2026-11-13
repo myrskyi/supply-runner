@@ -16,6 +16,7 @@ ORG = {
     "address": "vul. Sumska 1, Kharkiv, Ukraine",
     "code": "EDRPOU 00000000",
 }
+PACK_FILES = ["End_user_letter.pdf", "Humanitarian_aid_declaration.pdf", "Export_licence_copy.pdf", "Driver_power_of_attorney_and_insurance.pdf", "Payment_confirmation.pdf"]
 WATERMARK = "SPECIMEN · DEMO DOCUMENT · NOT VALID"
 
 

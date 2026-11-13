@@ -404,8 +404,8 @@ def _offer_reply(text: str) -> None:
         step("Coordinator accepted the offer, collecting documents and payment")
         analytics.capture("offer_accepted", {"total": order["total"], "currency": order["currency"]})
         missing = _bullets(d["name"] for d in order["documents"])
-        tell_user(f"Accepted. To place the order, send:\n{missing}\n\nFiles, photos or a short note are fine.")
         send_file(paperwork.purchase_order(order), "Purchase order draft")
+        tell_user(f"Accepted. To place the order, send:\n{missing}\n\nFiles, photos or a short note are fine.", [("📎 Attach demo documents", DEMO_DOCS)])
     elif decision == "counter" and answer.get("counter"):
         from . import voice
 
@@ -503,7 +503,12 @@ def _feedback_reply(text: str) -> None:
 STAGE_HANDLERS = {"offer": _offer_reply, "documents": _documents_reply, "feedback": _feedback_reply}
 
 
+DEMO_DOCS = "demo documents"
+SHORTCUTS = {DEMO_DOCS: " ".join(f"[attached file: {name}]" for name in paperwork.PACK_FILES)}
+
+
 def handle_inbound(text: str, sender: str = "web") -> None:
+    text = SHORTCUTS.get(text.strip().lower(), text)
     with use_session(session_id(sender)):
         if sender.startswith("telegram:"):
             set_meta(telegram_chat=int(sender.split(":", 1)[1]))

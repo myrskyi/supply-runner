@@ -66,7 +66,6 @@ iframe { flex:1; border:0; width:100%; min-height:0; }
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const EXAMPLE = "Need 20 first aid kits with tourniquets and 2 thermal imaging monoculars, own van, Kharkiv, by 20 November";
-const DEMO_DOCS = ["End_user_letter.pdf", "Humanitarian_aid_declaration.pdf", "Export_licence_copy.pdf", "Driver_power_of_attorney_and_insurance.pdf", "Payment_confirmation.pdf"];
 
 function sessionId() {
   let id = null;
@@ -110,7 +109,6 @@ function quick() {
   if (stage === "idle" || stage === "closed") return [["Use example request", EXAMPLE]];
   const call = (state.calls || []).at(-1);
   if (call && ["dialling", "talking"].includes(call.status)) return [[null, "Your turn as the shop: reply in the Agent screen (try Example)."]];
-  if (stage === "documents") return [["📎 Attach demo documents (5 PDFs)", DEMO_DOCS.map(f => `[attached file: ${f}]`).join(" ")]];
   return [];
 }
 

@@ -21,7 +21,7 @@ You play both sides: the volunteer chat on the left and the shop on the agent sc
 
 Use **start over** to run it again. You can type your own request or a counter offer (for example `max 20000 CZK, pickup tomorrow`) instead of clicking.
 
-Prefer Telegram? Message [@pirates_supply_runner_bot](https://t.me/pirates_supply_runner_bot) with a request. When the agent asks for a quote, the bot sends you a link to your shop page, and you can attach the PDFs from `data/documents/`.
+Prefer Telegram? Message [@pirates_supply_runner_bot](https://t.me/pirates_supply_runner_bot) with a request. When the agent asks for a quote, the bot sends you a link to your shop page. At the documents step tap **📎 Attach demo documents**, or attach real files.
 
 The shop is played by you and prices are not real. Past orders are seeded and the documents are specimen PDFs.
 
