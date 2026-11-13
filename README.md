@@ -17,7 +17,6 @@ Aid loses money to overhead, delays and bad suppliers. A volunteer coordinator b
 5. It asks only for the documents this shipment legally needs, plus payment confirmation, ticks them off, and confirms the order to both sides with a PDF.
 6. After delivery it asks for a 1 to 5 rating. The rating changes the supplier ranking next time.
 
-
 ## Run it
 
 ```bash
