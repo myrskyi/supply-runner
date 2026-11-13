@@ -34,7 +34,9 @@ def load() -> dict:
 
 
 def save(state: dict) -> None:
-    STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2))
+    tmp = STATE_FILE.with_suffix(".tmp")
+    tmp.write_text(json.dumps(state, ensure_ascii=False, indent=2))
+    tmp.replace(STATE_FILE)
 
 
 def _now() -> str:

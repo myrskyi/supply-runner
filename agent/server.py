@@ -208,6 +208,11 @@ def index():
     return FileResponse(config.WEB / "index.html")
 
 
+@app.get("/stage")
+def stage_page():
+    return FileResponse(config.WEB / "stage.html")
+
+
 @app.get("/mission")
 def mission_page():
     return FileResponse(config.WEB / "mission.html")

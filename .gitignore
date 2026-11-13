@@ -10,4 +10,5 @@ private/
 data/state.json
 data/cache/
 data/procure_state.json
+data/procure_state.tmp
 data/telegram_chat.json
