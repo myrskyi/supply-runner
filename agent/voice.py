@@ -73,6 +73,14 @@ def start_call(supplier_id: str, simulated: bool = False) -> str | None:
     return call_id
 
 
+def start_call_or_simulate(supplier_id: str) -> str | None:
+    simulated = not messaging.voice_ready()
+    call_id = start_call(supplier_id, simulated=simulated)
+    if call_id and simulated:
+        turn(call_id, None)
+    return call_id
+
+
 def turn(call_id: str, supplier_said: str | None) -> dict:
     """Records what the supplier said and returns {"say", "done"} for the next agent line."""
     state = procure.load()

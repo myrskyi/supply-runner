@@ -3,6 +3,7 @@
 import json
 import threading
 import uuid
+from contextlib import asynccontextmanager
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
@@ -11,11 +12,17 @@ from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import analytics, compare, config, evaluate, extract, llm, messaging, procure, rfq, rules, search, voice
+from . import analytics, compare, config, evaluate, extract, llm, messaging, procure, rfq, rules, search, telegram, voice
 
 DEMO_ROUND = "r1"
 
-app = FastAPI(title="Mission Ready")
+@asynccontextmanager
+async def lifespan(_app):
+    telegram.start(procure.handle_inbound)
+    yield
+
+
+app = FastAPI(title="Mission Ready", lifespan=lifespan)
 lock = threading.Lock()
 
 
@@ -218,6 +225,7 @@ class SayBody(BaseModel):
 def procure_state():
     return procure.load() | {
         "integrations": {
+            "telegram": telegram.ready() and telegram.chat_id() is not None,
             "whatsapp": messaging.whatsapp_ready(),
             "voice": messaging.voice_ready(),
             "apify": bool(config.APIFY_TOKEN),

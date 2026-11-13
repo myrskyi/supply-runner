@@ -51,16 +51,16 @@ a { color:#2563eb; }
 </head>
 <body>
 <header>
-  <div><h1>Supply Runner</h1><div class="sub">Ask on WhatsApp for medical or dual-use supplies. The agent finds suppliers, checks the paperwork and phones them for you.</div></div>
+  <div><h1>Supply Runner</h1><div class="sub">Ask on Telegram or WhatsApp for medical or dual-use supplies. The agent finds suppliers, checks the paperwork and phones them for you.</div></div>
   <div class="badges" id="badges"></div>
 </header>
 <main>
   <section>
     <div class="phone">
-      <div class="top">Supply Runner agent<small>WhatsApp · coordinator chat</small></div>
+      <div class="top">Supply Runner agent<small>Telegram · coordinator chat</small></div>
       <div class="chat" id="chat"></div>
       <div class="compose">
-        <textarea id="input" placeholder="Type as the coordinator (same as WhatsApp)"></textarea>
+        <textarea id="input" placeholder="Type as the coordinator (same as Telegram)"></textarea>
         <button id="sendBtn" onclick="send()">Send</button>
       </div>
     </div>
@@ -97,7 +97,7 @@ $("input").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftK
 
 function render() {
   const i = state.integrations;
-  $("badges").innerHTML = [["whatsapp", "WhatsApp"], ["voice", "Voice calls"], ["apify", "Apify"], ["featherless", "Featherless"], ["posthog", "PostHog"]]
+  $("badges").innerHTML = [["telegram", "Telegram"], ["whatsapp", "WhatsApp"], ["voice", "Voice calls"], ["apify", "Apify"], ["featherless", "Featherless"], ["posthog", "PostHog"]]
     .map(([k, label]) => `<span class="badge ${i[k] ? "on" : ""}">${label}${i[k] ? "" : " · off"}</span>`).join("");
   renderChat(); renderRequest(); renderSuppliers(); renderCompliance(); renderCalls(); renderEval();
 }
@@ -107,7 +107,7 @@ function renderChat() {
   if (key === lastChat) return;
   lastChat = key;
   const chat = $("chat");
-  chat.innerHTML = state.messages.length ? state.messages.map(m => `<div class="msg ${m.dir}">${esc(m.text)}<div class="meta">${esc(m.at)}${m.dir === "out" && m.delivery ? " · " + esc(m.delivery === "sent" ? "sent to WhatsApp" : m.delivery === "not configured" ? "web only" : m.delivery) : ""}</div></div>`).join("")
+  chat.innerHTML = state.messages.length ? state.messages.map(m => `<div class="msg ${m.dir}">${esc(m.text)}<div class="meta">${esc(m.at)}${m.dir === "out" && m.delivery ? " · " + esc(m.delivery === "sent" ? "sent to chat" : m.delivery === "not configured" ? "web only" : m.delivery) : ""}</div></div>`).join("")
     : `<div class="msg out">Hi! Tell me what supplies you need, how many, where they go and by when. Example: "We need 20 first-aid kits with tourniquets and 2 thermal imaging monoculars, our own van, to Kharkiv by 20 November."</div>`;
   chat.scrollTop = chat.scrollHeight;
 }

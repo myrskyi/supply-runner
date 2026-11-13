@@ -7,7 +7,7 @@ import threading
 import uuid
 from datetime import datetime
 
-from . import analytics, config, llm, messaging, search
+from . import analytics, config, llm, messaging, search, telegram
 
 CONFIG_FILE = config.DATA / "procure" / "config.json"
 COMPLIANCE_FILE = config.DATA / "procure" / "compliance.json"
@@ -54,7 +54,7 @@ def step(text: str) -> None:
 
 
 def tell_user(text: str) -> None:
-    delivery = messaging.send_whatsapp(text)
+    delivery = telegram.send(text) if telegram.ready() else messaging.send_whatsapp(text)
     update(lambda s: s["messages"].append({"dir": "out", "at": _now(), "text": text, "delivery": delivery}))
 
 
@@ -218,7 +218,7 @@ CALL_COMMAND = re.compile(r"^\s*call\s+(\d+)\s*$", re.IGNORECASE)
 
 def handle_inbound(text: str, sender: str = "web") -> None:
     update(lambda s: s["messages"].append({"dir": "in", "at": _now(), "text": text, "from": sender}))
-    analytics.capture("whatsapp_inbound", {"sender_kind": "web" if sender == "web" else "whatsapp", "length": len(text)})
+    analytics.capture("chat_inbound", {"channel": sender.split(":")[0], "length": len(text)})
     match = CALL_COMMAND.match(text)
     if match:
         state = load()
@@ -226,7 +226,7 @@ def handle_inbound(text: str, sender: str = "web") -> None:
         if 0 <= index < len(state["suppliers"]):
             from . import voice
 
-            threading.Thread(target=voice.start_call, args=(state["suppliers"][index]["id"],), daemon=True).start()
+            threading.Thread(target=voice.start_call_or_simulate, args=(state["suppliers"][index]["id"],), daemon=True).start()
         else:
             tell_user("I don't have a supplier with that number.")
         return
