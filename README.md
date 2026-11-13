@@ -17,11 +17,6 @@ Aid loses money to overhead, delays and bad suppliers. A volunteer coordinator b
 5. It asks only for the documents this shipment legally needs, plus payment confirmation, ticks them off, and confirms the order to both sides with a PDF.
 6. After delivery it asks for a 1 to 5 rating. The rating changes the supplier ranking next time.
 
-## Sponsors
-
-- **Apify**: Google Maps scraping for real suppliers, cached for reliability.
-- **Featherless**: open models (Qwen3 30B) for reading the request, the supplier chat, offer extraction and document matching.
-- **PostHog**: every step is an event (request, search, compliance check, quote, offer, order, rating) plus LLM analytics.
 
 ## Run it
 
@@ -45,10 +40,3 @@ uv run uvicorn agent.server:app --port 8000
 - `agent/paperwork.py`: specimen PDFs, purchase order and order confirmation.
 - `data/procure/compliance.json`: curated rules with sources and lead times.
 - `web/stage.html`: one-screen presentation view.
-
-## Honest notes
-
-- In the demo a team member plays the supplier. Prices are not the real shop's.
-- The past orders in `data/procure/history_seed.json` are constructed for the demo, not real experiences with these shops.
-- The documents in `data/documents/` are fictional and marked SPECIMEN.
-- The compliance check is a curated checklist with sources, not legal advice.
