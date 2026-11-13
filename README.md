@@ -4,6 +4,10 @@ An AI agent in Telegram that helps volunteers buy aid supplies in the EU for Ukr
 
 Built by team πrates (Pavlo Myrskyi, Yurii Boiko) at "AI Agents for the Rest of Us", AI Tinkerers Prague, 2026-11-13.
 
+## Try it
+
+Message [@pirates_supply_runner_bot](https://t.me/pirates_supply_runner_bot) on Telegram, for example: `Need 20 first aid kits and 2 thermal imaging monoculars, own van, Kharkiv, by 20 November`. The bot runs on our laptop during the hackathon, so it answers only while we are online.
+
 ## Why
 
 Aid loses money to overhead, delays and bad suppliers. A volunteer coordinator buying in Czechia spends days finding shops, asking for prices in Czech, and then learns at the border that a thermal imager is a dual-use item that needs an export licence.
@@ -17,7 +21,7 @@ Aid loses money to overhead, delays and bad suppliers. A volunteer coordinator b
 5. It asks only for the documents this shipment legally needs, plus payment confirmation, ticks them off, and confirms the order to both sides with a PDF.
 6. After delivery it asks for a 1 to 5 rating. The rating changes the supplier ranking next time.
 
-## Run it
+## Run it yourself
 
 ```bash
 cp .env.example .env
