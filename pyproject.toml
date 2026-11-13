@@ -9,6 +9,8 @@ dependencies = [
     "posthog<8",
     "apify-client",
     "python-dotenv",
+    "twilio>=9.13.0",
+    "python-multipart>=0.0.33",
 ]
 
 [tool.uv]

@@ -1,0 +1,89 @@
+{
+  "disclaimer": "Checklist built from a curated rule list, not legal advice. Confirm with a customs broker or the named authority before travel.",
+  "rules": [
+    {
+      "id": "eu_dual_use_licence",
+      "applies_to": ["dual_use"],
+      "jurisdiction": "EU / Czech Republic",
+      "title": "Export licence for dual-use items leaving the EU",
+      "summary": "Items listed in Annex I of Regulation (EU) 2021/821 need an export licence to leave the EU. Thermal imaging cameras can fall under category 6A003, depending on their specifications. Annex I was replaced by Regulation (EU) 2025/2003, so classify against the current list.",
+      "action": "Ask the supplier for the ECCN / EU control classification of the exact model. If it is listed, apply to the Licensing Administration of the Czech Ministry of Industry and Trade (MPO).",
+      "authority": "Licensing Administration, Ministry of Industry and Trade (Licenční správa MPO)",
+      "lead_time_days": 30,
+      "confidence": "verified in law text, model-specific classification unknown",
+      "source": "https://eur-lex.europa.eu/eli/reg/2021/821/oj/eng"
+    },
+    {
+      "id": "cz_mpo_fee",
+      "applies_to": ["dual_use"],
+      "jurisdiction": "Czech Republic",
+      "title": "Licence processing time and fee",
+      "summary": "A consultancy reports an MPO dual-use export licence fee of CZK 500 and about 30 days of processing.",
+      "action": "Plan the purchase so the licence can arrive before departure, or pick a model the supplier confirms is not listed.",
+      "authority": "Licenční správa MPO",
+      "lead_time_days": 30,
+      "confidence": "secondary source, confirm with MPO",
+      "source": "https://arws.cz/en/news-at-arrows/export-of-dual-use-goods-from-the-czech-republic-in-2026-licenses-and-obligations"
+    },
+    {
+      "id": "eu_export_declaration",
+      "applies_to": ["medical", "dual_use", "other"],
+      "jurisdiction": "EU",
+      "title": "Export customs declaration at the EU exit point",
+      "summary": "Goods leaving the EU are declared for export. The driver carries the invoice and packing list so the EU exit office can confirm exit.",
+      "action": "Get a commercial invoice and packing list from every supplier, with item names, quantities, values and the buyer's details.",
+      "authority": "Czech Customs Administration (Celní správa ČR)",
+      "lead_time_days": 1,
+      "confidence": "general EU customs practice, confirm thresholds with a broker",
+      "source": "https://taxation-customs.ec.europa.eu/customs-4/customs-procedures-import-and-export-0/what-exportation_en"
+    },
+    {
+      "id": "ua_humanitarian_declaration",
+      "applies_to": ["medical", "dual_use", "other"],
+      "jurisdiction": "Ukraine",
+      "title": "Humanitarian aid declaration on entry to Ukraine",
+      "summary": "Under Cabinet Resolution 953 (5 Sep 2023) humanitarian aid passes the border with a declaration filled in by the person transporting the goods, registered with a unique aid code.",
+      "action": "The receiving organisation registers the aid and gives the driver the declaration and code before departure.",
+      "authority": "Ministry of Social Policy of Ukraine, State Customs Service",
+      "lead_time_days": 2,
+      "confidence": "official announcements from 2023, check for later amendments",
+      "source": "https://www.kmu.gov.ua/en/news/uryad-sprostiv-prohodzhennya-gumanitarnoyi-dopomogi-v-ukrayinu-z-za-kordonu"
+    },
+    {
+      "id": "ua_end_user_letter",
+      "applies_to": ["dual_use"],
+      "jurisdiction": "Ukraine",
+      "title": "End-user letter for thermal imagers and night vision",
+      "summary": "A 2022 procedure let thermal imagers, night vision devices and drones enter with a letter of guarantee from the end user. Whether it still applies after Resolution 953 is not confirmed.",
+      "action": "Ask the receiving unit or organisation for a signed end-user letter naming the items and serial numbers.",
+      "authority": "State Customs Service of Ukraine",
+      "lead_time_days": 1,
+      "confidence": "2022 source, current status unknown",
+      "source": "https://www.kmu.gov.ua/en/news/irina-vereshchuk-vse-shcho-neobhidne-bijcyam-dlya-peremogi-peretinatime-kordon-bez-pereshkod"
+    },
+    {
+      "id": "medical_device_docs",
+      "applies_to": ["medical"],
+      "jurisdiction": "EU / Ukraine",
+      "title": "Medical device documents",
+      "summary": "Tourniquets and first-aid kits are medical devices in the EU. A CE marking and the supplier's declaration of conformity make customs and donor checks easier.",
+      "action": "Ask the supplier for the CE declaration of conformity and batch or lot numbers.",
+      "authority": "Supplier",
+      "lead_time_days": 0,
+      "confidence": "general practice",
+      "source": "https://health.ec.europa.eu/medical-devices-sector/overview_en"
+    },
+    {
+      "id": "own_transport_docs",
+      "applies_to": ["medical", "dual_use", "other"],
+      "jurisdiction": "EU / Ukraine",
+      "title": "Driver and vehicle documents for own transport",
+      "summary": "With the organisation's own van the driver needs the vehicle registration, green card insurance valid in Ukraine and a power of attorney if the van is not registered to the driver.",
+      "action": "Check that the green card covers Ukraine and prepare a power of attorney for the driver.",
+      "authority": "Organisation",
+      "lead_time_days": 1,
+      "confidence": "general practice",
+      "source": "https://www.cobx.org/"
+    }
+  ]
+}

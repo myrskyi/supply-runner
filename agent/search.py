@@ -65,7 +65,7 @@ def shortlist(carriers: list[dict], mission: dict) -> list[dict]:
     return [c | {"unverified": _unverified(c)} for c in ranked[:SHORTLIST_SIZE]]
 
 
-def scrape(mission: dict) -> dict:
+def scrape(mission: dict, cache_file=CACHE_FILE) -> dict:
     from apify_client import ApifyClient
 
     s = mission["search"]
@@ -90,7 +90,8 @@ def scrape(mission: dict) -> dict:
             seen.add(c["id"])
             carriers.append(c)
     result = {"source": "apify", "queries": s["queries"], "location": s["location"], "checked_at": checked_at, "carriers": carriers}
-    CACHE_FILE.write_text(json.dumps(result, ensure_ascii=False, indent=2))
+    cache_file.parent.mkdir(parents=True, exist_ok=True)
+    cache_file.write_text(json.dumps(result, ensure_ascii=False, indent=2))
     return result
 
 

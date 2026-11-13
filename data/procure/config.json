@@ -1,0 +1,28 @@
+{
+  "pickup_area": "Praha, Česko",
+  "language": "cs",
+  "max_per_query": 15,
+  "categories": {
+    "medical": {
+      "label": "Medical supplies",
+      "queries": [
+        "zdravotnický materiál velkoobchod",
+        "zdravotnické potřeby prodejna",
+        "lékárnička prodej"
+      ],
+      "google_categories": [
+        "Prodej zdravotnických potřeb",
+        "Velkoobchod se zdravotnickými potřebami",
+        "Farmaceutická společnost"
+      ]
+    },
+    "dual_use": {
+      "label": "Dual-use equipment",
+      "queries": [
+        "termovize prodej",
+        "noční vidění termovize obchod",
+        "army shop termovize"
+      ]
+    }
+  }
+}

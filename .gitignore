@@ -9,3 +9,4 @@ node_modules/
 private/
 data/state.json
 data/cache/
+data/procure_state.json
