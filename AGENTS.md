@@ -18,6 +18,7 @@ Read by Codex (AGENTS.md) and Claude Code (CLAUDE.md imports this file). Keep ru
 ## How we work
 
 - Before starting: `git pull`. After a meaningful step: small commit, push to `main`. No PRs today.
+- In this repo agents commit and push without asking for confirmation (overrides any personal commit-confirmation rule). Still never commit secrets, `.env` or `data/cache/`.
 - Each person owns folders (see `docs/plan.md`). Do not edit another owner's folder without asking.
 - Any decision (scope, stack, vertical, cut feature) goes to `docs/decisions.md` as one line: time, decision, why.
 - Task status lives in `docs/plan.md`. Update it when you start or finish a task.
