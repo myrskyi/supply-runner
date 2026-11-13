@@ -1,0 +1,621 @@
+{
+  "note": "Constructed offers with known traps. All carriers are fictional. Gold terms follow the mission in data/mission.json (500 kg, 2 pallets, today 2026-11-13).",
+  "splits": {
+    "tune": [
+      "r1",
+      "r2",
+      "r3",
+      "r4",
+      "r7",
+      "r8"
+    ],
+    "holdout": [
+      "r5",
+      "r6",
+      "r9",
+      "r10"
+    ]
+  },
+  "offers": [
+    {
+      "id": "o01",
+      "round": "r1",
+      "lang": "cs",
+      "carrier": "Morava Kargo (demo)",
+      "text": "Date: 2026-11-13\nFrom: Morava Kargo\n\nDobrý den,\nděkujeme za poptávku. Přepravu 2 palet (500 kg) Praha – Lvov nabízíme za 14 900 Kč bez DPH. Vyzvednutí v pondělí 16. 11., doručení ve čtvrtek 19. 11. Cena zahrnuje pojištění zásilky do 500 000 Kč a vykládku hydraulickým čelem. Nabídka platí do 20. 11.\nS pozdravem, dispečink",
+      "gold": {
+        "price": 14900,
+        "currency": "CZK",
+        "vat_included": false,
+        "insurance_included": true,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-19",
+        "valid_until": "2026-11-20",
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o02",
+      "round": "r1",
+      "lang": "en",
+      "carrier": "Halych Freight (demo)",
+      "text": "Date: 2026-11-13\nFrom: Halych Freight\n\nHello,\nwe can do Prague to Lviv, 500 kg, for EUR 480 all-in incl. VAT. Delivery by Wed 18 Nov. Kerbside delivery only, the driver does not unload. Standard CMR liability applies. Offer valid 7 days.\nBest regards",
+      "gold": {
+        "price": 480,
+        "currency": "EUR",
+        "vat_included": true,
+        "insurance_included": false,
+        "unloading_included": false,
+        "min_charge": null,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-18",
+        "valid_until": "2026-11-20",
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o03",
+      "round": "r1",
+      "lang": "uk",
+      "carrier": "Зелена Миля (demo)",
+      "text": "Date: 2026-11-13\nFrom: Зелена Миля\n\nДоброго дня!\nДоставка 500 кг Прага – Львів: 16 500 крон, ПДВ включено. Страхування вантажу та розвантаження гідробортом входять у вартість. Забираємо в середу 18.11, у Львові будемо в п'ятницю 20.11. Пропозиція дійсна до 18.11.\nЗ повагою",
+      "gold": {
+        "price": 16500,
+        "currency": "CZK",
+        "vat_included": true,
+        "insurance_included": true,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-20",
+        "valid_until": "2026-11-18",
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o04",
+      "round": "r2",
+      "lang": "cs",
+      "carrier": "Labe Paletservis (demo)",
+      "text": "Date: 2026-11-13\nFrom: Labe Paletservis\n\nDobrý den,\ncena 19 Kč/kg, minimální fakturace 12 000 Kč za zásilku. Ceny jsou konečné včetně DPH. Pojištění nákladu je v ceně. Vykládku si zajišťuje příjemce. Vyzvednutí možné ve čtvrtek 19. 11., doručení nejpozději v pondělí 23. 11.\nDěkujeme",
+      "gold": {
+        "price": 9500,
+        "currency": "CZK",
+        "vat_included": true,
+        "insurance_included": true,
+        "unloading_included": false,
+        "min_charge": 12000,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-23",
+        "valid_until": null,
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o05",
+      "round": "r2",
+      "lang": "en",
+      "carrier": "Bridge Line Logistics (demo)",
+      "text": "Date: 2026-11-13\nFrom: Bridge Line Logistics\n\nHi,\nour quote for 2 pallets Prague - Lviv is EUR 560 excl. VAT plus fuel surcharge 8%. Cargo insurance (all-risk) is included. Tail-lift unloading is included. Delivery Thursday 19 Nov. Valid until 17 Nov.\nRegards",
+      "gold": {
+        "price": 560,
+        "currency": "EUR",
+        "vat_included": false,
+        "insurance_included": true,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 44.8,
+        "delivery_date": "2026-11-19",
+        "valid_until": "2026-11-17",
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o06",
+      "round": "r2",
+      "lang": "uk",
+      "carrier": "Карпатський Шлях (demo)",
+      "text": "Date: 2026-11-09\nFrom: Карпатський Шлях\n\nДобрий день.\nВартість перевезення 13 800 крон з ПДВ. Вантаж застрахований згідно з CMR. Розвантаження гідробортом включено. Доставка в четвер 19.11. Пропозиція дійсна до 12.11.\nДякуємо",
+      "gold": {
+        "price": 13800,
+        "currency": "CZK",
+        "vat_included": true,
+        "insurance_included": false,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-19",
+        "valid_until": "2026-11-12",
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o07",
+      "round": "r3",
+      "lang": "cs",
+      "carrier": "Sázava Spedice (demo)",
+      "text": "Date: 2026-11-13\nFrom: Sázava Spedice\n\nDobrý den,\nnabízíme cenu 6 900 Kč za paletu. K ceně účtujeme palivový příplatek 6 % a poplatek za celní odbavení 1 200 Kč. Ceny jsou bez DPH. Pojištění zásilky není součástí ceny, lze sjednat za 450 Kč. Vykládka hydraulickým čelem v ceně. Doručení ve středu 18. 11. Platnost nabídky do 30. 11.\nS pozdravem",
+      "gold": {
+        "price": 13800,
+        "currency": "CZK",
+        "vat_included": false,
+        "insurance_included": false,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 2028,
+        "delivery_date": "2026-11-18",
+        "valid_until": "2026-11-30",
+        "insurance_fee": 450,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o08",
+      "round": "r3",
+      "lang": "en",
+      "carrier": "Eastway Cargo (demo)",
+      "text": "Date: 2026-11-13\nFrom: Eastway Cargo\n\nGood afternoon,\nwe offer 11,000 CZK flat, VAT included. Cargo is insured up to CZK 300,000. The driver unloads with a tail lift. Earliest pickup is Thursday 19 Nov, delivery Monday 23 Nov. The offer is valid until 30 November.\nKind regards",
+      "gold": {
+        "price": 11000,
+        "currency": "CZK",
+        "vat_included": true,
+        "insurance_included": true,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-23",
+        "valid_until": "2026-11-30",
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o09",
+      "round": "r3",
+      "lang": "cs",
+      "carrier": "Honza Doprava (demo)",
+      "text": "Date: 2026-11-13\nFrom: Honza Doprava\n\ndobry den, 2 pal Praha-Lvov 15500,- konecna cena. pojisteni nakladu ano, vykladka ano (celo). dodani patek 20.11. nabidka plati tyden",
+      "gold": {
+        "price": 15500,
+        "currency": "CZK",
+        "vat_included": true,
+        "insurance_included": true,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-20",
+        "valid_until": "2026-11-20",
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o10",
+      "round": "r4",
+      "lang": "uk",
+      "carrier": "Дністер Транс (demo)",
+      "text": "Date: 2026-11-13\nFrom: Дністер Транс\n\nДоброго дня.\nЦіна: 0,95 євро за кг. Мінімальне замовлення 600 євро. ПДВ не включено. Страхування вантажу включено. Розвантаження силами отримувача. Доставка 19.11.\nЗ повагою",
+      "gold": {
+        "price": 475,
+        "currency": "EUR",
+        "vat_included": false,
+        "insurance_included": true,
+        "unloading_included": false,
+        "min_charge": 600,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-19",
+        "valid_until": null,
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o11",
+      "round": "r4",
+      "lang": "en",
+      "carrier": "Northgate Transport (demo)",
+      "text": "Date: 2026-11-13\nFrom: Northgate Transport\n\nHello,\nprice CZK 17,200 including VAT, cargo insurance and tail-lift delivery. Pickup Mon 16 Nov, transit time 3 days. Offer valid until 16 Nov.\nThank you",
+      "gold": {
+        "price": 17200,
+        "currency": "CZK",
+        "vat_included": true,
+        "insurance_included": true,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-19",
+        "valid_until": "2026-11-16",
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o12",
+      "round": "r4",
+      "lang": "cs",
+      "carrier": "Berounka Trans (demo)",
+      "text": "Date: 2026-11-12\nFrom: Berounka Trans\n\nDobrý den,\ncena přepravy 12 400 Kč + DPH. Odpovědnost dopravce dle úmluvy CMR. Hydraulické čelo za příplatek 900 Kč. Doručení ve čtvrtek 19. 11. Nabídka je platná 14 dní.\nS pozdravem",
+      "gold": {
+        "price": 12400,
+        "currency": "CZK",
+        "vat_included": false,
+        "insurance_included": false,
+        "unloading_included": false,
+        "min_charge": null,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-19",
+        "valid_until": "2026-11-26",
+        "insurance_fee": null,
+        "unloading_fee": 900
+      }
+    },
+    {
+      "id": "o13",
+      "round": "r5",
+      "lang": "cs",
+      "carrier": "Jizera Logistik (demo)",
+      "text": "Date: 2026-11-13\nFrom: Jizera Logistik\n\nDobrý den,\nza přepravu účtujeme 21 Kč/kg, minimálně však 9 000 Kč. Cena je včetně DPH i pojištění nákladu. Vykládku neprovádíme, zajišťuje ji příjemce. Dodání v úterý 24. 11.\nDěkujeme za poptávku",
+      "gold": {
+        "price": 10500,
+        "currency": "CZK",
+        "vat_included": true,
+        "insurance_included": true,
+        "unloading_included": false,
+        "min_charge": 9000,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-24",
+        "valid_until": null,
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o14",
+      "round": "r5",
+      "lang": "en",
+      "carrier": "Amber Route (demo)",
+      "text": "Date: 2026-11-13\nFrom: Amber Route\n\nHello,\nEUR 610, VAT excluded. Fuel surcharge 5% applies. Cargo insurance is not included; carrier liability under CMR only. Unloading with tail lift included. Delivery Wednesday 18 November. This quote is valid for 3 days.\nRegards",
+      "gold": {
+        "price": 610,
+        "currency": "EUR",
+        "vat_included": false,
+        "insurance_included": false,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 30.5,
+        "delivery_date": "2026-11-18",
+        "valid_until": "2026-11-16",
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o15",
+      "round": "r5",
+      "lang": "uk",
+      "carrier": "Галицький Вантаж (demo)",
+      "text": "Date: 2026-11-13\nFrom: Галицький Вантаж\n\nДобрий день!\nПропонуємо 15 900 крон, ПДВ включено. До ціни додається митне оформлення 1 000 крон. Страхування вантажу включено, розвантаження гідробортом включено. Доставка в п'ятницю 20.11. Пропозиція дійсна до 19.11.\nЗ повагою",
+      "gold": {
+        "price": 15900,
+        "currency": "CZK",
+        "vat_included": true,
+        "insurance_included": true,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 1000,
+        "delivery_date": "2026-11-20",
+        "valid_until": "2026-11-19",
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o16",
+      "round": "r6",
+      "lang": "cs",
+      "carrier": "Ohře Cargo (demo)",
+      "text": "Date: 2026-11-13\nFrom: Ohře Cargo\n\nDobrý den,\nnabídka: 13 200 Kč bez DPH, palivový příplatek 7 %. Pojištění zásilky lze dokoupit za 600 Kč. Vykládka hydraulickým čelem v ceně. Vyzvednutí ve středu 18. 11., tranzit 2 dny. Platnost do 25. 11.\nS pozdravem",
+      "gold": {
+        "price": 13200,
+        "currency": "CZK",
+        "vat_included": false,
+        "insurance_included": false,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 924,
+        "delivery_date": "2026-11-20",
+        "valid_until": "2026-11-25",
+        "insurance_fee": 600,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o17",
+      "round": "r6",
+      "lang": "en",
+      "carrier": "Silverpine Haulage (demo)",
+      "text": "Date: 2026-11-06\nFrom: Silverpine Haulage\n\nHello,\ntotal price EUR 520 incl. VAT. All-risk cargo insurance included. Delivery to the door with tail lift. Delivery date: Thursday 19 Nov. Offer valid until 10 Nov.\nBest",
+      "gold": {
+        "price": 520,
+        "currency": "EUR",
+        "vat_included": true,
+        "insurance_included": true,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-19",
+        "valid_until": "2026-11-10",
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o18",
+      "round": "r6",
+      "lang": "uk",
+      "carrier": "Буковина Експрес (demo)",
+      "text": "Date: 2026-11-13\nFrom: Буковина Експрес\n\nДобрий день.\nВартість 0,80 євро/кг, мінімальний платіж 550 євро, ціни з ПДВ. Відповідальність перевізника за CMR, окремого страхування вантажу немає. Розвантаження гідробортом входить у ціну. Доставка 20.11.\nДякуємо",
+      "gold": {
+        "price": 400,
+        "currency": "EUR",
+        "vat_included": true,
+        "insurance_included": false,
+        "unloading_included": true,
+        "min_charge": 550,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-20",
+        "valid_until": null,
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o19",
+      "round": "r7",
+      "lang": "cs",
+      "carrier": "Vysočina Trans (demo)",
+      "text": "Date: 2026-11-13\nFrom: Vysočina Trans\n\nDobrý den,\ncena za 1 paletu je 7 200 Kč, ceny jsou uvedeny bez daně. Mýtné a silniční poplatky 650 Kč za zásilku. Zboží je pojištěno dle CMR, připojištění nákladu nabízíme za 500 Kč. Vykládka hydraulickým čelem je v ceně. Doručení ve čtvrtek 19. 11. Nabídka platí 5 dní.\nS pozdravem",
+      "gold": {
+        "price": 14400,
+        "currency": "CZK",
+        "vat_included": false,
+        "insurance_included": false,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 650,
+        "delivery_date": "2026-11-19",
+        "valid_until": "2026-11-18",
+        "insurance_fee": 500,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o20",
+      "round": "r7",
+      "lang": "en",
+      "carrier": "Redfield Haulage (demo)",
+      "text": "Date: 2026-11-13\nFrom: Redfield Haulage\n\nHello,\nEUR 590 net for the two pallets. Cargo is insured under CMR. Tail lift delivery included. Pickup Thursday 19 Nov, transit 2 working days. This quote is valid for 48 hours.\nRegards",
+      "gold": {
+        "price": 590,
+        "currency": "EUR",
+        "vat_included": false,
+        "insurance_included": false,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-23",
+        "valid_until": "2026-11-15",
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o21",
+      "round": "r7",
+      "lang": "uk",
+      "carrier": "Подільська Логістика (demo)",
+      "text": "Date: 2026-11-13\nFrom: Подільська Логістика\n\nДоброго дня.\n17 800 крон, це остаточна ціна, нічого доплачувати не треба. Страхування вантажу включено. Розвантаження гідробортом включено. Доставка 19.11.\nЗ повагою",
+      "gold": {
+        "price": 17800,
+        "currency": "CZK",
+        "vat_included": true,
+        "insurance_included": true,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-19",
+        "valid_until": null,
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o22",
+      "round": "r8",
+      "lang": "cs",
+      "carrier": "Krusnohor Sped (demo)",
+      "text": "Date: 2026-11-12\nFrom: Krusnohor Sped\n\ndobry den, cena 3,10 Kc/kg + DPH, minimalne 14 000 Kc za zasilku. pojisteni nakladu v cene. slozeni zbozi celem v cene. vyzvednuti po 16.11, doruceni st 18.11. platnost do odvolani.",
+      "gold": {
+        "price": 1550,
+        "currency": "CZK",
+        "vat_included": false,
+        "insurance_included": true,
+        "unloading_included": true,
+        "min_charge": 14000,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-18",
+        "valid_until": null,
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o23",
+      "round": "r8",
+      "lang": "en",
+      "carrier": "Lowland Freight (demo)",
+      "text": "Date: 2026-11-13\nFrom: Lowland Freight\n\nHi,\nour rate is EUR 38 per 100 kg, VAT included. Road toll EUR 25 per shipment. Insurance is not included, it can be arranged for EUR 30. Unloading is the consignee's responsibility, we do not have a tail lift. Delivery Wed 18 Nov. Offer valid until 20 Nov.\nThanks",
+      "gold": {
+        "price": 190,
+        "currency": "EUR",
+        "vat_included": true,
+        "insurance_included": false,
+        "unloading_included": false,
+        "min_charge": null,
+        "surcharge_total": 25,
+        "delivery_date": "2026-11-18",
+        "valid_until": "2026-11-20",
+        "insurance_fee": 30,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o24",
+      "round": "r8",
+      "lang": "uk",
+      "carrier": "Тиса Карго (demo)",
+      "text": "Date: 2026-11-10\nFrom: Тиса Карго\n\nДобрий день.\nЦіна 620 євро без ПДВ. Страхування вантажу включено. Розвантаження гідробортом включено. Доставка 20.11. Пропозиція дійсна 2 дні.\nДякуємо",
+      "gold": {
+        "price": 620,
+        "currency": "EUR",
+        "vat_included": false,
+        "insurance_included": true,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-20",
+        "valid_until": "2026-11-12",
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o25",
+      "round": "r9",
+      "lang": "cs",
+      "carrier": "Orlice Doprava (demo)",
+      "text": "Date: 2026-11-13\nFrom: Orlice Doprava\n\nDobrý den,\ncena za paletové místo 6 400 Kč, k tomu mýto 480 Kč za zásilku. Uvedené ceny jsou bez DPH. Zásilka je kryta odpovědností dopravce dle CMR, pojištění zboží sjednáme za 550 Kč. Hydraulické čelo v ceně. Vyzvednutí v pondělí 16. 11., doručení do 3 dnů. Platnost nabídky 7 dní.\nS pozdravem",
+      "gold": {
+        "price": 12800,
+        "currency": "CZK",
+        "vat_included": false,
+        "insurance_included": false,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 480,
+        "delivery_date": "2026-11-19",
+        "valid_until": "2026-11-20",
+        "insurance_fee": 550,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o26",
+      "round": "r9",
+      "lang": "en",
+      "carrier": "Whitestone Cargo (demo)",
+      "text": "Date: 2026-11-13\nFrom: Whitestone Cargo\n\nHello,\nflat EUR 540, all taxes included. Goods are insured under the CMR convention. The driver unloads with a tail lift at no charge. Delivery Thursday 19 Nov. Valid for 5 days.\nBest regards",
+      "gold": {
+        "price": 540,
+        "currency": "EUR",
+        "vat_included": true,
+        "insurance_included": false,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-19",
+        "valid_until": "2026-11-18",
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o27",
+      "round": "r9",
+      "lang": "uk",
+      "carrier": "Черемош Транс (demo)",
+      "text": "Date: 2026-11-13\nFrom: Черемош Транс\n\nДоброго дня.\nВартість 0,70 євро/кг, ПДВ включено, мінімальний платіж 300 євро. Страхування вантажу включено у вартість. Розвантаження: гідроборт за доплату 40 євро. Забираємо в четвер 19.11, транзит 2 робочі дні.\nЗ повагою",
+      "gold": {
+        "price": 350,
+        "currency": "EUR",
+        "vat_included": true,
+        "insurance_included": true,
+        "unloading_included": false,
+        "min_charge": 300,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-23",
+        "valid_until": null,
+        "insurance_fee": null,
+        "unloading_fee": 40
+      }
+    },
+    {
+      "id": "o28",
+      "round": "r10",
+      "lang": "cs",
+      "carrier": "Svitava Kargo (demo)",
+      "text": "Date: 2026-11-11\nFrom: Svitava Kargo\n\ndobry den, cena 15 900 Kc konecna, v cene pojisteni nakladu i vykladka celem. doruceni ctvrtek 19.11. nabidka plati 24 hodin.",
+      "gold": {
+        "price": 15900,
+        "currency": "CZK",
+        "vat_included": true,
+        "insurance_included": true,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-19",
+        "valid_until": "2026-11-12",
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o29",
+      "round": "r10",
+      "lang": "en",
+      "carrier": "Harbourline Transport (demo)",
+      "text": "Date: 2026-11-13\nFrom: Harbourline Transport\n\nGood morning,\nprice: CZK 6,950 per pallet + VAT. Fuel surcharge 4%. All-risk cargo insurance included. Tail-lift unloading included. Delivery Friday 20 Nov. Offer valid until 27 Nov.\nKind regards",
+      "gold": {
+        "price": 13900,
+        "currency": "CZK",
+        "vat_included": false,
+        "insurance_included": true,
+        "unloading_included": true,
+        "min_charge": null,
+        "surcharge_total": 556,
+        "delivery_date": "2026-11-20",
+        "valid_until": "2026-11-27",
+        "insurance_fee": null,
+        "unloading_fee": null
+      }
+    },
+    {
+      "id": "o30",
+      "round": "r10",
+      "lang": "uk",
+      "carrier": "Збруч Експрес (demo)",
+      "text": "Date: 2026-11-13\nFrom: Збруч Експрес\n\nДобрий день.\n14 200 крон з ПДВ. Відповідальність перевізника за CMR. Додаткове страхування вантажу можемо оформити за 700 крон. Розвантаження силами отримувача, гідроборта немає. Доставка 18.11. Пропозиція дійсна до кінця листопада.\nДякуємо",
+      "gold": {
+        "price": 14200,
+        "currency": "CZK",
+        "vat_included": true,
+        "insurance_included": false,
+        "unloading_included": false,
+        "min_charge": null,
+        "surcharge_total": 0,
+        "delivery_date": "2026-11-18",
+        "valid_until": "2026-11-30",
+        "insurance_fee": 700,
+        "unloading_fee": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "id": "mission-lviv-01",
+  "title": "Medical supplies for Lviv",
+  "cargo": "Medical supplies and winter kits",
+  "weight_kg": 500,
+  "pallets": 2,
+  "origin": {
+    "name": "Prague warehouse",
+    "city": "Praha",
+    "lat": 50.0755,
+    "lng": 14.4378
+  },
+  "destination": {
+    "name": "Lviv partner warehouse",
+    "city": "Lviv",
+    "lat": 49.8397,
+    "lng": 24.0297
+  },
+  "today": "2026-11-13",
+  "deadline": "2026-11-20",
+  "budget_czk": 22000,
+  "eur_to_czk": 25.0,
+  "vat_rate": 0.21,
+  "requirements": [
+    {
+      "key": "cargo",
+      "label": "Cargo packed",
+      "status": "ok"
+    },
+    {
+      "key": "documents",
+      "label": "Customs documents",
+      "status": "ok"
+    },
+    {
+      "key": "transport",
+      "label": "Transport",
+      "status": "blocked"
+    }
+  ],
+  "transport_requirements": [
+    "Cargo insurance included (carrier liability under CMR alone is not enough)",
+    "Unloading at destination (no forklift at the Lviv warehouse)",
+    "Delivery on or before the deadline",
+    "Offer still valid today",
+    "Total cost within budget"
+  ],
+  "search": {
+    "queries": [
+      "mezinárodní kamionová doprava Ukrajina",
+      "spedice Ukrajina",
+      "přeprava palet do zahraničí",
+      "doprava zboží na Ukrajinu",
+      "mezinárodní spedice Praha",
+      "kamionová doprava Praha"
+    ],
+    "location": "Praha, Česko",
+    "language": "cs",
+    "max_per_query": 20,
+    "categories": [
+      "Přepravní služba",
+      "Spediční služba",
+      "Spediční společnost",
+      "Logistické služby",
+      "Kamionová doprava",
+      "Nákladní doprava",
+      "Mezinárodní spedice"
+    ]
+  }
+}

@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mission Ready</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root { --ink:#16202a; --muted:#64707d; --line:#dfe4ea; --bg:#f4f6f8; --card:#fff; --red:#d43d3d; --green:#1f9d61; --amber:#c98a12; --blue:#2563c9; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.45 -apple-system, "Segoe UI", Inter, sans-serif; color:var(--ink); background:var(--bg); }
+  header { display:flex; align-items:center; gap:16px; padding:12px 20px; background:var(--card); border-bottom:1px solid var(--line); }
+  header h1 { font-size:18px; margin:0; }
+  header .sub { color:var(--muted); font-size:13px; }
+  .badges { margin-left:auto; display:flex; gap:6px; flex-wrap:wrap; }
+  .badge { font-size:12px; padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:var(--muted); background:#fff; }
+  .badge.on { color:var(--green); border-color:#b9e2cd; background:#effaf4; }
+  .top { display:grid; grid-template-columns: 1.25fr 1fr; gap:16px; padding:16px 20px 0; }
+  #map { height:440px; border-radius:10px; border:1px solid var(--line); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .card h2 { font-size:13px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:0 0 8px; }
+  .side { display:flex; flex-direction:column; gap:12px; }
+  .mission-title { font-size:20px; font-weight:650; margin:0 0 2px; }
+  .facts { color:var(--muted); font-size:14px; margin-bottom:10px; }
+  .req { display:flex; align-items:center; gap:8px; padding:5px 0; font-weight:550; }
+  .dot { width:11px; height:11px; border-radius:50%; background:var(--green); flex:none; }
+  .dot.blocked { background:var(--red); box-shadow:0 0 0 4px #f9d9d9; }
+  .req.blocked { color:var(--red); }
+  .status-pill { display:inline-block; font-weight:650; padding:3px 10px; border-radius:999px; font-size:13px; }
+  .status-pill.blocked { background:#fdeaea; color:var(--red); }
+  .status-pill.ready { background:#e6f6ee; color:var(--green); }
+  button { font:inherit; font-weight:600; border:0; border-radius:8px; padding:9px 14px; cursor:pointer; background:var(--ink); color:#fff; }
+  button.secondary { background:#fff; color:var(--ink); border:1px solid var(--line); }
+  button.approve { background:var(--green); }
+  button.reject { background:#fff; color:var(--red); border:1px solid #efc4c4; }
+  button:disabled { opacity:.5; cursor:wait; }
+  .log { max-height:150px; overflow:auto; font-size:13px; }
+  .log div { padding:2px 0; border-bottom:1px dashed var(--line); }
+  .log time { color:var(--muted); margin-right:6px; font-variant-numeric:tabular-nums; }
+  main { padding:16px 20px 40px; display:flex; flex-direction:column; gap:16px; }
+  .cols { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th { text-align:left; color:var(--muted); font-weight:550; font-size:12px; text-transform:uppercase; letter-spacing:.03em; padding:6px 8px; border-bottom:1px solid var(--line); }
+  td { padding:8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  tr.pick td { background:#effaf4; }
+  tr.rejected td { opacity:.45; text-decoration:line-through; }
+  .yes { color:var(--green); font-weight:600; } .no { color:var(--red); font-weight:600; } .unk { color:var(--amber); font-weight:600; }
+  .chip { display:inline-block; font-size:12px; padding:1px 7px; border-radius:999px; margin:1px 3px 1px 0; }
+  .chip.fail { background:#fdeaea; color:var(--red); } .chip.note { background:#fff4dc; color:#8a5c00; } .chip.unk { background:#eef1f5; color:var(--muted); }
+  .reco { margin-top:10px; padding:10px 12px; border-left:4px solid var(--green); background:#f3fbf7; border-radius:6px; }
+  .reco.none { border-color:var(--amber); background:#fff9ec; }
+  textarea, input[type=text] { width:100%; font:inherit; padding:8px 10px; border:1px solid var(--line); border-radius:8px; }
+  textarea { min-height:190px; font-size:13px; }
+  .row { display:flex; gap:8px; align-items:center; margin-top:8px; flex-wrap:wrap; }
+  .small { font-size:13px; color:var(--muted); }
+  details summary { cursor:pointer; color:var(--blue); font-size:13px; }
+  pre { white-space:pre-wrap; font:12.5px/1.4 ui-monospace, Menlo, monospace; background:#f7f8fa; padding:8px; border-radius:6px; margin:6px 0 0; }
+  .bar { height:10px; border-radius:5px; background:var(--blue); display:inline-block; vertical-align:middle; margin-right:6px; }
+  .qr { display:flex; gap:14px; align-items:center; }
+  .donor { border:2px solid var(--green); }
+  .donor h3 { margin:0 0 4px; font-size:19px; }
+  .rule-new { background:#fff4dc; }
+  a { color:var(--blue); }
+  @media (max-width: 980px) { .top, .cols { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Mission Ready</h1>
+    <div class="sub">An agent that gets a humanitarian mission unblocked and leaves donors the evidence</div>
+  </div>
+  <div class="badges" id="badges"></div>
+</header>
+
+<div class="top">
+  <div id="map"></div>
+  <div class="side">
+    <div class="card" id="mission"></div>
+    <div class="card">
+      <h2>Agent activity</h2>
+      <div class="log" id="log"><span class="small">Nothing yet.</span></div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div id="shortlist"></div>
+  <div id="inbox"></div>
+  <div id="comparison"></div>
+  <div id="donor"></div>
+  <div class="cols">
+    <div class="card" id="rules"></div>
+    <div class="card" id="eval"></div>
+  </div>
+  <div class="row"><button class="secondary" onclick="resetDemo()">Reset demo</button><span class="small">Clears offers, decisions and coordinator rules.</span></div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = n => n == null ? "unknown" : Math.round(n).toLocaleString("en-US") + " CZK";
+let state = null, busy = false, rfqDraft = null, renderedQr = null;
+
+const map = L.map("map", { scrollWheelZoom: false }).setView([50.2, 19.2], 6);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap" }).addTo(map);
+const layers = L.layerGroup().addTo(map);
+let mapKey = "";
+
+async function api(path, body) {
+  busy = true; render();
+  try {
+    const res = await fetch(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body || {}) });
+    if (!res.ok) alert("Request failed: " + (await res.text()));
+  } finally { busy = false; await refresh(); }
+}
+async function refresh() {
+  try { state = await (await fetch("/api/state")).json(); render(); } catch (e) {}
+}
+function resetDemo() { if (confirm("Reset the demo?")) { rfqDraft = null; api("/api/reset"); } }
+
+function renderBadges() {
+  const i = state.integrations;
+  $("badges").innerHTML =
+    `<span class="badge ${i.apify ? "on" : ""}">Apify ${i.apify ? "connected" : "not connected"}</span>` +
+    `<span class="badge ${i.featherless ? "on" : ""}">Featherless ${i.featherless ? esc(i.model) : "not connected"}</span>` +
+    `<span class="badge ${i.posthog ? "on" : ""}">PostHog ${i.posthog ? "tracing" : "not connected"}</span>`;
+}
+
+function renderMap() {
+  const m = state.mission, ready = state.stage === "ready";
+  const key = state.stage + "|" + state.shortlist.length;
+  if (key === mapKey) return;
+  mapKey = key;
+  layers.clearLayers();
+  const a = [m.origin.lat, m.origin.lng], b = [m.destination.lat, m.destination.lng];
+  L.marker(a).bindPopup(`<b>${esc(m.origin.name)}</b><br>${esc(m.cargo)}, ${m.weight_kg} kg`).addTo(layers);
+  L.marker(b).bindPopup(`<b>${esc(m.destination.name)}</b><br>Deadline ${esc(m.deadline)}`).addTo(layers);
+  L.polyline([a, b], { color: ready ? "#1f9d61" : "#d43d3d", weight: 4, dashArray: ready ? null : "8 10" }).addTo(layers);
+  state.shortlist.forEach(c => {
+    if (c.lat == null) return;
+    L.circleMarker([c.lat, c.lng], { radius: 7, color: "#2563c9", fillOpacity: .7 })
+      .bindPopup(`<b>${esc(c.name)}</b><br>${c.rating ? "★ " + c.rating + " (" + c.reviews + ")" : "no rating"}${c.source_url ? `<br><a target="_blank" href="${esc(c.source_url)}">source</a>` : ""}`)
+      .addTo(layers);
+  });
+  if (state.stage === "shortlist" && state.shortlist.length) map.flyTo(a, 10, { duration: 1 });
+  else map.flyToBounds([a, b], { padding: [40, 40], duration: 1 });
+}
+
+function renderMission() {
+  const m = state.mission, ready = state.stage === "ready";
+  const reqs = m.requirements.map(r => `<div class="req ${r.status === "blocked" ? "blocked" : ""}"><span class="dot ${r.status === "blocked" ? "blocked" : ""}"></span>${esc(r.label)}${r.status === "blocked" ? ": not arranged" : ""}</div>`).join("");
+  let action = "";
+  if (state.stage === "blocked") action = `<button ${busy ? "disabled" : ""} onclick="api('/api/search')">${busy ? "Agent is working…" : "Find a carrier within budget and deadline"}</button>`;
+  $("mission").innerHTML = `
+    <h2>Mission</h2>
+    <div class="mission-title">${esc(m.title)}</div>
+    <div class="facts">${esc(m.cargo)} · ${m.weight_kg} kg on ${m.pallets} pallets · ${esc(m.origin.city)} to ${esc(m.destination.city)}<br>
+      Deadline <b>${esc(m.deadline)}</b> · Transport budget <b>${money(m.budget_czk)}</b></div>
+    <span class="status-pill ${ready ? "ready" : "blocked"}">${ready ? "Ready to dispatch" : "Blocked"}</span>
+    <div style="margin-top:8px">${reqs}</div>
+    <div class="row">${action}</div>`;
+}
+
+function renderLog() {
+  if (!state.log.length) return;
+  const el = $("log");
+  el.innerHTML = state.log.map(l => `<div><time>${esc(l.at)}</time>${esc(l.text)}</div>`).join("");
+  el.scrollTop = el.scrollHeight;
+}
+
+function renderShortlist() {
+  if (!["shortlist", "waiting", "ready"].includes(state.stage)) { $("shortlist").innerHTML = ""; return; }
+  const editing = state.stage === "shortlist";
+  if (editing && document.activeElement && document.activeElement.id === "rfqText") return;
+  if (rfqDraft == null && state.rfq) rfqDraft = state.rfq.text;
+  const s = state.search;
+  const rows = state.shortlist.map(c => `<tr>
+      <td><b>${esc(c.name)}</b><div class="small">${esc(c.category || "")} · ${esc(c.address || "")}</div></td>
+      <td>${c.rating ? "★ " + c.rating + " (" + c.reviews + ")" : "<span class='unk'>none</span>"}</td>
+      <td>${c.website ? `<a target="_blank" href="${esc(c.website)}">website</a>` : "<span class='unk'>no website</span>"}<br>${esc(c.phone || "")}<br>${esc((c.emails || [])[0] || "")}</td>
+      <td>${c.unverified.map(u => `<span class="chip unk">${esc(u)}</span>`).join("")}</td>
+      <td>${c.source_url ? `<a target="_blank" href="${esc(c.source_url)}">Google Maps</a>` : esc(c.source)}<div class="small">${esc((c.checked_at || "").slice(0, 16).replace("T", " "))}</div></td>
+    </tr>`).join("");
+  $("shortlist").innerHTML = `<div class="cols">
+    <div class="card">
+      <h2>Shortlist · ${s.n_found} carriers found, ${state.shortlist.length} shortlisted</h2>
+      <div class="small">Queries: ${s.queries.map(esc).join(" · ")} in ${esc(s.location)}. Source: ${s.source === "apify" ? "Apify Google Maps scraper" : "placeholder data, Apify not connected"}.</div>
+      <table><tr><th>Carrier</th><th>Reviews</th><th>Contact</th><th>Not verifiable publicly</th><th>Source</th></tr>${rows}</table>
+    </div>
+    <div class="card">
+      <h2>Request for quotation ${editing ? "· waiting for your approval" : "· approved and sent"}</h2>
+      <textarea id="rfqText" ${editing ? "" : "readonly"} oninput="rfqDraft=this.value">${esc(editing ? rfqDraft : state.rfq.text)}</textarea>
+      ${editing ? `<div class="row"><button ${busy ? "disabled" : ""} onclick="api('/api/rfq/send', {text: rfqDraft})">Approve and send</button>
+        <span class="small">Demo: requests go to controlled test recipients, not to the real companies above.</span></div>` : ""}
+    </div></div>`;
+}
+
+function renderInbox() {
+  if (!["waiting", "ready"].includes(state.stage)) { $("inbox").innerHTML = ""; renderedQr = null; return; }
+  const url = (state.public_url || location.origin) + "/reply";
+  if (renderedQr === url && $("qr")) { $("sentList").innerHTML = sentHtml(); $("demoBtn").disabled = busy; return; }
+  $("inbox").innerHTML = `<div class="card">
+    <h2>Requests sent · waiting for replies</h2>
+    <div class="qr"><div id="qr"></div>
+      <div><div><b>Be a carrier.</b> Scan and send your own offer. Hide a catch in it if you like.</div>
+        <div class="small"><a target="_blank" href="${esc(url)}">${esc(url)}</a></div>
+        <div id="sentList" style="margin-top:6px">${sentHtml()}</div>
+        <div class="row"><button id="demoBtn" class="secondary" onclick="api('/api/demo-replies')">Load the 3 test replies</button></div>
+      </div></div></div>`;
+  new QRCode($("qr"), { text: url, width: 132, height: 132 });
+  renderedQr = url;
+}
+const sentHtml = () => state.sent.map(s => `<span class="chip unk">${esc(s.name)} · ${esc(s.kind)}</span>`).join("");
+
+const tri = (v, yes, no) => v === true ? `<span class="yes">${yes}</span>` : v === false ? `<span class="no">${no}</span>` : `<span class="unk">unknown</span>`;
+
+const service = (t, name) => t[name + "_included"] === false && t[name + "_fee"] != null
+  ? `<span class="unk">extra +${t[name + "_fee"].toLocaleString("en-US")} ${esc(t.currency || "")}</span>` : tri(t[name + "_included"], "included", "not included");
+
+function renderComparison() {
+  if (!state.offers.length) { $("comparison").innerHTML = ""; return; }
+  if (document.activeElement && document.activeElement.id === "rejectReason") return;
+  const reco = state.recommendation, ready = state.stage === "ready";
+  const rows = state.offers.map(o => {
+    const t = o.terms, a = o.assessment, pick = reco && reco.offer_id === o.id;
+    const chips = a.fails.map(f => `<span class="chip fail">${esc(f)}</span>`).join("") + a.notes.map(f => `<span class="chip note">${esc(f)}</span>`).join("") +
+      (a.unknowns.length ? `<span class="chip unk">unknown: ${esc(a.unknowns.join(", "))}</span>` : "");
+    const quoted = t.price == null ? "unknown" : `${t.price.toLocaleString("en-US")} ${esc(t.currency || "")}${t.vat_included === false ? " excl. VAT" : ""}`;
+    return `<tr class="${pick ? "pick" : ""} ${o.rejected ? "rejected" : ""}">
+      <td><b>${esc(o.carrier)}</b>${pick ? " ✓" : ""}<div class="small">${esc(o.kind)} · ${esc(o.received_at)} · rules ${esc(o.rules_version)}</div>
+        <details><summary>original offer</summary><pre>${esc(o.text)}</pre></details></td>
+      <td>${quoted}</td>
+      <td><b>${money(a.total_czk)}</b></td>
+      <td>${service(t, "insurance")}</td>
+      <td>${service(t, "unloading")}</td>
+      <td>${esc(t.delivery_date || "unknown")}</td>
+      <td>${esc(t.valid_until || "unknown")}</td>
+      <td>${chips}${t.caveats.length ? `<div class="small">${t.caveats.map(esc).join("; ")}</div>` : ""}${o.rejected && o.reject_reason ? `<div class="small">Rejected: ${esc(o.reject_reason)}</div>` : ""}</td>
+    </tr>`;
+  }).join("");
+  let decision = "";
+  if (!ready && reco && reco.offer_id) decision = `<div class="row">
+      <button class="approve" ${busy ? "disabled" : ""} onclick="api('/api/decision', {offer_id: '${reco.offer_id}', action: 'approve'})">Approve this offer</button>
+      <input type="text" id="rejectReason" style="flex:1; min-width:240px" placeholder="Or reject and tell the agent why. It becomes a rule.">
+      <button class="reject" ${busy ? "disabled" : ""} onclick="api('/api/decision', {offer_id: '${reco.offer_id}', action: 'reject', reason: $('rejectReason').value})">Reject</button></div>`;
+  $("comparison").innerHTML = `<div class="card">
+    <h2>Offers compared · budget ${money(state.mission.budget_czk)} · deadline ${esc(state.mission.deadline)}</h2>
+    <table><tr><th>Carrier</th><th>Quoted</th><th>Real total</th><th>Insurance</th><th>Unloading</th><th>Delivery</th><th>Valid until</th><th>Findings</th></tr>${rows}</table>
+    ${reco ? `<div class="reco ${reco.offer_id ? "" : "none"}"><b>Agent:</b> ${esc(reco.reason)}</div>` : ""}
+    ${decision}</div>`;
+}
+
+function renderDonor() {
+  if (state.stage !== "ready") { $("donor").innerHTML = ""; return; }
+  const m = state.mission, d = state.decision, chosen = state.offers.find(o => o.id === d.offer_id);
+  const rows = state.offers.map(o => `<tr><td>${esc(o.carrier)}${o.id === d.offer_id ? " <b>(chosen)</b>" : ""}</td><td>${money(o.assessment.total_czk)}</td>
+    <td>${o.id === d.offer_id ? "Meets every requirement" : esc(o.rejected ? "Rejected by coordinator: " + (o.reject_reason || "") : o.assessment.fails.join(", ") || (o.assessment.total_czk == null ? "Not comparable, terms unknown" : "More expensive"))}</td></tr>`).join("");
+  $("donor").innerHTML = `<div class="card donor">
+    <h2>Donor view · published after coordinator approval</h2>
+    <h3>${esc(m.title)}: transport secured</h3>
+    <div class="facts">${m.weight_kg} kg from ${esc(m.origin.city)} to ${esc(m.destination.city)}, delivery by ${esc(chosen.terms.delivery_date || m.deadline)}.
+      Transport cost <b>${money(chosen.assessment.total_czk)}</b> (${(chosen.assessment.total_czk / m.weight_kg).toFixed(1)} CZK per kg), budget ${money(m.budget_czk)}.</div>
+    <table><tr><th>Offer</th><th>Real total</th><th>Outcome</th></tr>${rows}</table>
+    <div class="small" style="margin-top:8px">${state.offers.length} offers compared. Approved by ${esc(d.by)} on ${esc(d.at)}. Every figure links to the original offer text above.</div></div>`;
+}
+
+function renderRules() {
+  const r = state.rules;
+  const learned = r.learned ? r.learned.split("\n").map(l => `<div>${esc(l)}</div>`).join("") : `<span class="small">None yet. Version ${esc(r.version)} is the bare prompt.</span>`;
+  const coord = r.coordinator.length ? r.coordinator.map(l => `<div class="rule-new">- ${esc(l)}</div>`).join("") : `<span class="small">None yet. Reject an offer with a reason to add one.</span>`;
+  $("rules").innerHTML = `<h2>Agent memory · rules ${esc(r.version)}</h2>
+    <div class="small">Learned from its own misses (rewritten by the agent):</div><div style="font-size:13px; margin:4px 0 10px">${learned}</div>
+    <div class="small">Learned from the coordinator:</div><div style="font-size:13px; margin-top:4px">${coord}</div>`;
+}
+
+function renderEval() {
+  const pct = v => `<span class="bar" style="width:${Math.round(v * 90)}px"></span>${Math.round(v * 100)}%`;
+  const rows = state.eval.map(e => `<tr><td><b>${esc(e.version)}</b></td><td>${pct(e.holdout.field_accuracy)}</td><td>${pct(e.holdout.trap_recall)}</td><td>${pct(e.holdout.pick_accuracy)}</td><td>${e.holdout.false_alarms}</td></tr>`).join("");
+  $("eval").innerHTML = `<h2>Does it get better? Held-out offers, scored by code</h2>` + (rows
+    ? `<table><tr><th>Rules</th><th>Terms right</th><th>Traps caught</th><th>Right pick</th><th>False alarms</th></tr>${rows}</table>
+       <div class="small" style="margin-top:6px">Offers are constructed with known traps. The agent never sees the held-out ones while rewriting its rules.</div>`
+    : `<span class="small">No evaluation runs yet.</span>`);
+}
+
+function render() {
+  if (!state) return;
+  renderBadges(); renderMap(); renderMission(); renderLog(); renderShortlist(); renderInbox(); renderComparison(); renderDonor(); renderRules(); renderEval();
+}
+refresh();
+setInterval(() => { if (!busy) refresh(); }, 2000);
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+{
+  "version": "v2",
+  "model": "Qwen/Qwen3-30B-A3B-Instruct-2507",
+  "splits": {
+    "tune": {
+      "n_offers": 18,
+      "field_accuracy": 0.9697,
+      "trap_recall": 0.9655,
+      "false_alarms": 3,
+      "pick_accuracy": 0.8333,
+      "misses": [
+        {
+          "offer_id": "o07",
+          "field": "surcharge_total",
+          "predicted": 1200,
+          "expected": 2028
+        },
+        {
+          "offer_id": "o12",
+          "field": "surcharge_total",
+          "predicted": 900,
+          "expected": 0
+        },
+        {
+          "offer_id": "o12",
+          "field": "unloading_fee",
+          "predicted": null,
+          "expected": 900
+        },
+        {
+          "offer_id": "o20",
+          "field": "delivery_date",
+          "predicted": "2026-11-22",
+          "expected": "2026-11-23"
+        },
+        {
+          "offer_id": "o21",
+          "field": "vat_included",
+          "predicted": false,
+          "expected": true
+        },
+        {
+          "offer_id": "o22",
+          "field": "unloading_included",
+          "predicted": false,
+          "expected": true
+        }
+      ]
+    },
+    "holdout": {
+      "n_offers": 12,
+      "field_accuracy": 0.947,
+      "trap_recall": 0.9444,
+      "false_alarms": 2,
+      "pick_accuracy": 1.0,
+      "misses": [
+        {
+          "offer_id": "o13",
+          "field": "price",
+          "predicted": 9000,
+          "expected": 10500
+        },
+        {
+          "offer_id": "o18",
+          "field": "insurance_fee",
+          "predicted": 0,
+          "expected": null
+        },
+        {
+          "offer_id": "o18",
+          "field": "unloading_fee",
+          "predicted": 0,
+          "expected": null
+        },
+        {
+          "offer_id": "o25",
+          "field": "price",
+          "predicted": 6400,
+          "expected": 12800
+        },
+        {
+          "offer_id": "o27",
+          "field": "surcharge_total",
+          "predicted": 40,
+          "expected": 0
+        },
+        {
+          "offer_id": "o27",
+          "field": "delivery_date",
+          "predicted": "2026-11-21",
+          "expected": "2026-11-23"
+        },
+        {
+          "offer_id": "o28",
+          "field": "vat_included",
+          "predicted": false,
+          "expected": true
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "source": "fixture",
+  "queries": ["mezinárodní kamionová doprava Ukrajina", "spedice Ukrajina", "přeprava palet do zahraničí"],
+  "location": "Praha, Česko",
+  "checked_at": "2026-11-13T13:00:00+00:00",
+  "carriers": [
+    {"id": "fx1", "name": "Placeholder Carrier 1 (no Apify data yet)", "category": "Freight forwarding service", "address": "Praha 9", "lat": 50.1106, "lng": 14.5009, "phone": null, "website": null, "emails": [], "rating": null, "reviews": 0, "source_url": null, "source": "fixture", "checked_at": "2026-11-13T13:00:00+00:00"},
+    {"id": "fx2", "name": "Placeholder Carrier 2 (no Apify data yet)", "category": "Trucking company", "address": "Praha 10", "lat": 50.0679, "lng": 14.5111, "phone": null, "website": null, "emails": [], "rating": null, "reviews": 0, "source_url": null, "source": "fixture", "checked_at": "2026-11-13T13:00:00+00:00"},
+    {"id": "fx3", "name": "Placeholder Carrier 3 (no Apify data yet)", "category": "Logistics service", "address": "Praha 5", "lat": 50.0497, "lng": 14.3609, "phone": null, "website": null, "emails": [], "rating": null, "reviews": 0, "source_url": null, "source": "fixture", "checked_at": "2026-11-13T13:00:00+00:00"}
+  ]
+}

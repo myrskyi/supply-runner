@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reply as a carrier</title>
+<style>
+  body { margin:0; padding:18px; font:16px/1.45 -apple-system, "Segoe UI", sans-serif; color:#16202a; background:#f4f6f8; }
+  .card { background:#fff; border:1px solid #dfe4ea; border-radius:10px; padding:16px; max-width:560px; margin:0 auto 14px; }
+  h1 { font-size:20px; margin:0 0 6px; }
+  .small { font-size:13px; color:#64707d; }
+  pre { white-space:pre-wrap; font:13px/1.4 ui-monospace, Menlo, monospace; background:#f7f8fa; padding:10px; border-radius:6px; max-height:220px; overflow:auto; }
+  input, textarea { width:100%; box-sizing:border-box; font:inherit; padding:10px; border:1px solid #dfe4ea; border-radius:8px; margin-top:8px; }
+  textarea { min-height:150px; }
+  button { width:100%; margin-top:10px; font:inherit; font-weight:600; border:0; border-radius:8px; padding:12px; background:#16202a; color:#fff; }
+  .ok { color:#1f9d61; font-weight:600; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>You are a carrier</h1>
+  <div class="small">A humanitarian mission asked you for a quote. Reply in any language. Try to hide a catch: a missing service, an extra fee, a late date.</div>
+  <pre id="rfq">Loading the request…</pre>
+</div>
+<div class="card">
+  <input id="carrier" placeholder="Your company name">
+  <textarea id="text" placeholder="Example: 520 EUR, delivery Friday. Price excludes customs clearance."></textarea>
+  <button id="send" onclick="send()">Send offer</button>
+  <div id="result" class="small" style="margin-top:8px"></div>
+</div>
+<script>
+fetch("/api/state").then(r => r.json()).then(s => { document.getElementById("rfq").textContent = s.rfq ? s.rfq.text : "No request has been sent yet."; });
+async function send() {
+  const carrier = document.getElementById("carrier").value, text = document.getElementById("text").value;
+  if (!text.trim()) return;
+  const button = document.getElementById("send"), result = document.getElementById("result");
+  button.disabled = true; result.textContent = "Sending…";
+  const res = await fetch("/api/offers", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ carrier, text }) });
+  button.disabled = false;
+  result.innerHTML = res.ok ? '<span class="ok">Sent. Watch the screen.</span>' : "Could not send, try again.";
+}
+</script>
+</body>
+</html>

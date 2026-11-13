@@ -1,0 +1,15 @@
+[project]
+name = "mission-ready"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "openai",
+    "posthog<8",
+    "apify-client",
+    "python-dotenv",
+]
+
+[tool.uv]
+package = false

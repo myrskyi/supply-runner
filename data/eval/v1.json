@@ -1,0 +1,150 @@
+{
+  "version": "v1",
+  "model": "Qwen/Qwen3-30B-A3B-Instruct-2507",
+  "splits": {
+    "tune": {
+      "n_offers": 18,
+      "field_accuracy": 0.9343,
+      "trap_recall": 0.7931,
+      "false_alarms": 2,
+      "pick_accuracy": 0.6667,
+      "misses": [
+        {
+          "offer_id": "o06",
+          "field": "insurance_included",
+          "predicted": true,
+          "expected": false
+        },
+        {
+          "offer_id": "o07",
+          "field": "surcharge_total",
+          "predicted": 1800,
+          "expected": 2028
+        },
+        {
+          "offer_id": "o09",
+          "field": "vat_included",
+          "predicted": null,
+          "expected": true
+        },
+        {
+          "offer_id": "o12",
+          "field": "vat_included",
+          "predicted": true,
+          "expected": false
+        },
+        {
+          "offer_id": "o12",
+          "field": "surcharge_total",
+          "predicted": 900,
+          "expected": 0
+        },
+        {
+          "offer_id": "o12",
+          "field": "unloading_fee",
+          "predicted": null,
+          "expected": 900
+        },
+        {
+          "offer_id": "o20",
+          "field": "insurance_included",
+          "predicted": true,
+          "expected": false
+        },
+        {
+          "offer_id": "o20",
+          "field": "delivery_date",
+          "predicted": "2026-11-21",
+          "expected": "2026-11-23"
+        },
+        {
+          "offer_id": "o21",
+          "field": "vat_included",
+          "predicted": null,
+          "expected": true
+        },
+        {
+          "offer_id": "o22",
+          "field": "price",
+          "predicted": 15500,
+          "expected": 1550
+        },
+        {
+          "offer_id": "o22",
+          "field": "vat_included",
+          "predicted": true,
+          "expected": false
+        },
+        {
+          "offer_id": "o22",
+          "field": "unloading_included",
+          "predicted": false,
+          "expected": true
+        },
+        {
+          "offer_id": "o23",
+          "field": "surcharge_total",
+          "predicted": 55,
+          "expected": 25
+        }
+      ]
+    },
+    "holdout": {
+      "n_offers": 12,
+      "field_accuracy": 0.9394,
+      "trap_recall": 0.8333,
+      "false_alarms": 1,
+      "pick_accuracy": 0.75,
+      "misses": [
+        {
+          "offer_id": "o18",
+          "field": "insurance_fee",
+          "predicted": 40,
+          "expected": null
+        },
+        {
+          "offer_id": "o18",
+          "field": "unloading_fee",
+          "predicted": 0,
+          "expected": null
+        },
+        {
+          "offer_id": "o26",
+          "field": "insurance_included",
+          "predicted": true,
+          "expected": false
+        },
+        {
+          "offer_id": "o27",
+          "field": "surcharge_total",
+          "predicted": 40,
+          "expected": 0
+        },
+        {
+          "offer_id": "o27",
+          "field": "delivery_date",
+          "predicted": "2026-11-21",
+          "expected": "2026-11-23"
+        },
+        {
+          "offer_id": "o28",
+          "field": "vat_included",
+          "predicted": null,
+          "expected": true
+        },
+        {
+          "offer_id": "o29",
+          "field": "vat_included",
+          "predicted": true,
+          "expected": false
+        },
+        {
+          "offer_id": "o30",
+          "field": "surcharge_total",
+          "predicted": 700,
+          "expected": 0
+        }
+      ]
+    }
+  }
+}
