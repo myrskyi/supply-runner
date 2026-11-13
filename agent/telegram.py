@@ -1,5 +1,6 @@
 """Telegram bot channel via long polling, so it needs no public URL. Every chat is its own coordinator session."""
 
+import hashlib
 import os
 import threading
 import time
@@ -11,6 +12,9 @@ from . import config
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
 API = f"https://api.telegram.org/bot{TOKEN}"
 LIMIT = 4000
+WEBHOOK = os.getenv("TELEGRAM_WEBHOOK", "").strip() == "1"
+WEBHOOK_SECRET = hashlib.sha256(f"webhook:{TOKEN}".encode()).hexdigest()[:32]
+status: dict = {"mode": None, "last_update_at": None, "last_error": None}
 
 _started = False
 
@@ -50,36 +54,61 @@ def send_document(path, caption: str = "", chat: int | None = None) -> str:
         return f"failed: {e}"
 
 
+def handle_update(update: dict, on_message) -> None:
+    status["last_update_at"] = time.time()
+    if query := update.get("callback_query"):
+        requests.post(f"{API}/answerCallbackQuery", json={"callback_query_id": query["id"]}, timeout=15)
+        requests.post(f"{API}/editMessageReplyMarkup", json={"chat_id": query["message"]["chat"]["id"], "message_id": query["message"]["message_id"]}, timeout=15)
+        on_message(query["data"], f"telegram:{query['message']['chat']['id']}")
+        return
+    message = update.get("message") or {}
+    text = (message.get("text") or message.get("caption") or "").strip()
+    if message.get("document"):
+        text = f"{text} [attached file: {message['document'].get('file_name', 'document')}]".strip()
+    elif message.get("photo"):
+        text = f"{text} [attached photo]".strip()
+    if not text:
+        return
+    if text == "/start":
+        send(GREETING, chat=message["chat"]["id"])
+        return
+    on_message(text, f"telegram:{message['chat']['id']}")
+
+
 def _poll(on_message) -> None:
     offset = None
     while True:
         try:
             r = requests.get(f"{API}/getUpdates", params={"timeout": 25, "offset": offset}, timeout=35)
-            for update in r.json().get("result", []):
+            body = r.json()
+            if not body.get("ok"):
+                status["last_error"] = body.get("description")
+                time.sleep(5)
+                continue
+            for update in body.get("result", []):
                 offset = update["update_id"] + 1
-                if query := update.get("callback_query"):
-                    requests.post(f"{API}/answerCallbackQuery", json={"callback_query_id": query["id"]}, timeout=15)
-                    requests.post(f"{API}/editMessageReplyMarkup", json={"chat_id": query["message"]["chat"]["id"], "message_id": query["message"]["message_id"]}, timeout=15)
-                    on_message(query["data"], f"telegram:{query['message']['chat']['id']}")
-                    continue
-                message = update.get("message") or {}
-                text = (message.get("text") or message.get("caption") or "").strip()
-                if message.get("document"):
-                    text = f"{text} [attached file: {message['document'].get('file_name', 'document')}]".strip()
-                elif message.get("photo"):
-                    text = f"{text} [attached photo]".strip()
-                if not text:
-                    continue
-                if text == "/start":
-                    send(GREETING, chat=message["chat"]["id"])
-                    continue
-                on_message(text, f"telegram:{message['chat']['id']}")
-        except Exception:
+                handle_update(update, on_message)
+        except Exception as e:
+            status["last_error"] = str(e)
             time.sleep(3)
+
+
+def _set_webhook() -> None:
+    try:
+        r = requests.post(f"{API}/setWebhook", json={"url": f"{config.PUBLIC_URL}/telegram/webhook", "secret_token": WEBHOOK_SECRET, "allowed_updates": ["message", "callback_query"]}, timeout=15)
+        status["last_error"] = None if r.json().get("ok") else r.json().get("description")
+    except Exception as e:
+        status["last_error"] = str(e)
 
 
 def start(on_message) -> None:
     global _started
-    if TOKEN and not _started:
-        _started = True
+    if not TOKEN or _started:
+        return
+    _started = True
+    if WEBHOOK and config.PUBLIC_URL:
+        status["mode"] = "webhook"
+        _set_webhook()
+    else:
+        status["mode"] = "polling"
         threading.Thread(target=_poll, args=(on_message,), daemon=True).start()

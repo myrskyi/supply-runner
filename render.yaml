@@ -4,6 +4,15 @@ services:
     runtime: docker
     plan: free
     healthCheckPath: /healthz
+    buildFilter:
+      paths:
+        - agent/**
+        - web/**
+        - data/procure/**
+        - data/documents/*.pdf
+        - Dockerfile
+        - pyproject.toml
+        - uv.lock
     envVars:
       - key: FEATHERLESS_API_KEY
         sync: false
@@ -15,5 +24,7 @@ services:
         value: https://eu.i.posthog.com
       - key: TELEGRAM_BOT_TOKEN
         sync: false
+      - key: TELEGRAM_WEBHOOK
+        value: "1"
       - key: PUBLIC_URL
         sync: false

@@ -215,6 +215,14 @@ def index():
 
 @app.get("/healthz")
 def healthz():
+    return {"ok": True, "telegram": telegram.status}
+
+
+@app.post("/telegram/webhook")
+async def telegram_webhook(request: Request):
+    if request.headers.get("x-telegram-bot-api-secret-token") != telegram.WEBHOOK_SECRET:
+        raise HTTPException(403)
+    threading.Thread(target=telegram.handle_update, args=(await request.json(), procure.handle_inbound), daemon=True).start()
     return {"ok": True}
 
 
