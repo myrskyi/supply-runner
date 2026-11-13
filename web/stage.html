@@ -51,6 +51,9 @@ main { flex:1; min-height:0; padding:0 28px 18px; display:flex; }
 .rating { font-size:64px; color:#f59e0b; letter-spacing:6px; }
 footer { display:flex; justify-content:space-between; align-items:center; padding:8px 28px 12px; font-size:13px; color:var(--muted); }
 footer b { color:var(--ink); font-weight:600; }
+footer > span:first-child { white-space:nowrap; }
+footer .demo { text-align:center; padding:0 12px; }
+footer .demo a { color:var(--brand); }
 .reset { background:none; border:0; color:#d1d5db; font:inherit; font-size:12px; cursor:pointer; }
 </style>
 </head>
@@ -59,7 +62,7 @@ footer b { color:var(--ink); font-weight:600; }
 <div class="stepper" id="stepper"></div>
 <main><div class="scene" id="scene"></div></main>
 <div class="say" id="sayBox" style="display:none;padding:0 28px 18px"><input id="sayInput" placeholder="Reply as the supplier" autocomplete="off"><button class="ghost" onclick="example()" title="Fill in an example reply">Example</button><button onclick="say()">Send</button></div>
-<footer><span><b>Apify</b> · <b>Featherless</b> · <b>PostHog</b></span><button class="reset" onclick="reset()">reset</button></footer>
+<footer><span><b>Apify</b> · <b>Featherless</b> · <b>PostHog</b></span><span class="demo">Hackathon demo: you play the shop, prices and documents are fictional. <a href="https://github.com/myrskyi/supply-runner#from-demo-to-product" target="_blank" rel="noopener">How the real product differs</a></span><button class="reset" onclick="reset()">reset</button></footer>
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
