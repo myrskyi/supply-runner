@@ -246,7 +246,7 @@ def run_request(text: str) -> None:
         docs = _bullets(f"{c['title']} · ~{c['lead_time_days']} d" for c in applicable)
         tell_user(f"Paperwork\n{docs}" + (f"\n\nStart first: {longest['title']} (~{longest['lead_time_days']} days)" if longest else ""))
 
-        tell_user("Prices and stock are not public. Shall I call the top supplier, or name another one?", [(f"📞 Call {short_name(suppliers[0]['name'])}", "call 1")] if suppliers else None)
+        tell_user("Prices and stock are not public. Shall I ask the top supplier for a quote, or name another one?", [(f"💬 Ask {short_name(suppliers[0]['name'])} for a quote", "ask 1")] if suppliers else None)
         update(lambda s: s.update(stage="waiting"))
     except Exception as e:
         step(f"Failed: {e}")
@@ -254,14 +254,14 @@ def run_request(text: str) -> None:
         update(lambda s: s.update(stage="error"))
 
 
-CALL_COMMAND = re.compile(r"^\s*(?:call\s+)?(?:no\.?\s*|#)?(\d+)\s*$", re.IGNORECASE)
+CALL_COMMAND = re.compile(r"^\s*(?:(?:call|ask|contact|message)\s+)?(?:no\.?\s*|#)?(\d+)\s*$", re.IGNORECASE)
 
 
 def picked_supplier(text: str, state: dict) -> int | None:
     match = CALL_COMMAND.match(text)
     if match:
         return int(match.group(1)) - 1
-    if state["stage"] != "waiting" or not re.search(r"\b(call|phone|ring|contact)\b", text, re.IGNORECASE):
+    if state["stage"] != "waiting" or not re.search(r"\b(call|phone|ring|contact|ask|message|write|quote)\b", text, re.IGNORECASE):
         return None
     words = set(re.findall(r"[\w.-]+", text.lower()))
     for n, s in enumerate(state["suppliers"]):

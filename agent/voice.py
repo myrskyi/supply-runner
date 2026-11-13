@@ -1,4 +1,4 @@
-"""Voice call to a supplier. Twilio does speech-to-text and text-to-speech, the model decides what to say next."""
+"""Conversation with a supplier: a Twilio phone call when voice is set up, otherwise a live text chat. The model decides what to say next."""
 
 import uuid
 
@@ -6,7 +6,12 @@ from . import analytics, config, llm, messaging, procure
 
 MAX_TURNS = 14
 
-AGENT_PROMPT = """You are an assistant phoning a supplier on behalf of a humanitarian organisation from Ukraine.
+CHANNELS = {
+    "phone": {"verb": "phoning", "start": "📞 Calling {name} for price, stock and pickup date.", "step": "Calling {name}"},
+    "chat": {"verb": "chatting in writing with", "start": "💬 Asked {name} for a quote. I'll report back when they reply.", "step": "Asking {name} for a quote in chat"},
+}
+
+AGENT_PROMPT = """You are an assistant {verb} a supplier on behalf of a humanitarian organisation from Ukraine.
 Supplier: {supplier}.
 We want to buy: {items}.
 We pick up with our own van near Prague and drive to {destination}.
@@ -23,7 +28,7 @@ Conversation so far:
 
 Return one JSON object: {{"say": what you say next, "done": true if this is your goodbye}}. Return only the JSON."""
 
-FACTS_PROMPT = """Phone call transcript between our assistant and a supplier:
+FACTS_PROMPT = """Transcript of a conversation between our assistant and a supplier:
 {transcript}
 
 Return one JSON object with what the SUPPLIER said (null if not said):
@@ -38,7 +43,7 @@ def _call(state: dict, call_id: str) -> dict:
 
 
 def _transcript(call: dict) -> str:
-    return "\n".join(f"{'Assistant' if t['who'] == 'agent' else 'Supplier'}: {t['text']}" for t in call["transcript"]) or "(call just connected)"
+    return "\n".join(f"{'Assistant' if t['who'] == 'agent' else 'Supplier'}: {t['text']}" for t in call["transcript"]) or "(conversation just started)"
 
 
 def start_call(supplier_id: str, simulated: bool = False) -> str | None:
@@ -61,8 +66,9 @@ def start_call(supplier_id: str, simulated: bool = False) -> str | None:
         "facts": None,
     }
     procure.update(lambda s: s["calls"].append(call))
-    procure.step(f"Calling {supplier['name']} (demo line, a teammate plays the supplier)")
-    procure.tell_user(f"📞 Calling {procure.short_name(supplier['name'])} for price, stock and pickup date.")
+    channel = CHANNELS["chat" if simulated else "phone"]
+    procure.step(channel["step"].format(name=supplier["name"]))
+    procure.tell_user(channel["start"].format(name=procure.short_name(supplier["name"])))
     analytics.capture("supplier_call_started", {"simulated": simulated, "category": supplier["category"]})
     if not simulated:
         try:
@@ -97,7 +103,7 @@ def turn(call_id: str, supplier_said: str | None) -> dict:
         reply = {"say": "Thank you very much, that's all I needed. Goodbye.", "done": True}
     else:
         prompt = AGENT_PROMPT.format(
-            supplier=supplier["name"], items=items or "the items", destination=request.get("destination") or "Ukraine",
+            verb=CHANNELS["chat" if call.get("simulated") else "phone"]["verb"], supplier=supplier["name"], items=items or "the items", destination=request.get("destination") or "Ukraine",
             documents=documents or "invoice and packing list", transcript=_transcript(call),
             instructions="; ".join(call.get("instructions") or []) or "none",
         )

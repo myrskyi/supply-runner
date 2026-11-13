@@ -72,7 +72,7 @@ footer b { color:var(--ink); }
 <main>
   <div class="col">
     <div class="card line">
-      <h2>Supplier line <span id="lineName"></span></h2>
+      <h2>Supplier chat <span id="lineName"></span></h2>
       <div class="transcript" id="transcript"></div>
       <div class="say" id="sayBox" style="display:none"><input id="sayInput" placeholder="Answer as the supplier" autocomplete="off"><button onclick="say()">Send</button></div>
     </div>
@@ -163,7 +163,7 @@ function renderLine() {
   $("lineName").textContent = call ? short(call.supplier_name) : "";
   $("sayBox").style.display = liveCall() ? "" : "none";
   const order = state.order;
-  const html = !call ? `<div class="empty">When the coordinator replies CALL 1, the agent contacts the supplier here. In the demo, a teammate plays the shop.</div>`
+  const html = !call ? `<div class="empty">When the coordinator asks for a quote, the agent talks to the supplier here.</div>`
     : call.transcript.map((t, i) => {
         const confirm = order?.status === "ordered" && i === call.transcript.length - 1 && t.who === "agent";
         return `<div class="bubble ${confirm ? "confirm" : t.who}"><div class="who">${t.who === "agent" ? "Agent" : "Supplier"}</div>${esc(t.text)}</div>`;
