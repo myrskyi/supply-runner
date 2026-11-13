@@ -40,6 +40,7 @@ main { flex:1; min-height:0; padding:0 28px 18px; display:flex; }
 .who { font-size:12px; color:var(--muted); margin-bottom:2px; }
 .say { display:flex; gap:10px; }
 .say input { flex:1; min-width:0; border:2px solid var(--sup); border-radius:12px; padding:14px 16px; font:inherit; outline:none; }
+.say button.ghost { background:var(--supbg); color:var(--sup); }
 .say button { border:0; border-radius:12px; padding:0 22px; background:var(--sup); color:#fff; font:inherit; font-weight:600; cursor:pointer; }
 .price { font-size:44px; font-weight:800; letter-spacing:-.02em; }
 .banner { background:var(--ok); color:#fff; border-radius:12px; padding:14px 16px; font-size:20px; font-weight:700; }
@@ -57,25 +58,28 @@ footer b { color:var(--ink); font-weight:600; }
 <header><div class="logo">SR</div><h1>Supply Runner</h1></header>
 <div class="stepper" id="stepper"></div>
 <main><div class="scene" id="scene"></div></main>
-<div class="say" id="sayBox" style="display:none;padding:0 28px 18px"><input id="sayInput" placeholder="Reply as the supplier" autocomplete="off"><button onclick="say()">Send</button></div>
+<div class="say" id="sayBox" style="display:none;padding:0 28px 18px"><input id="sayInput" placeholder="Reply as the supplier" autocomplete="off"><button class="ghost" onclick="example()" title="Fill in an example reply">Example</button><button onclick="say()">Send</button></div>
 <footer><span><b>Apify</b> · <b>Featherless</b> · <b>PostHog</b></span><button class="reset" onclick="reset()">reset</button></footer>
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const STEPS = ["Request", "Suppliers", "Quote", "Order", "Rating"];
+const S = new URLSearchParams(location.search).get("s"), Q = S ? `?s=${encodeURIComponent(S)}` : "";
+const EXAMPLE_REPLY = "2 in stock, 21900 CZK each, pickup in 2 days. Invoice and CE declaration, no export classification.";
+function example() { $("sayInput").value = EXAMPLE_REPLY; $("sayInput").focus(); }
 let state = null, lastHtml = "";
 
 async function poll() {
-  try { state = await (await fetch("/api/procure")).json(); render(); } catch (e) {}
+  try { state = await (await fetch(`/api/procure${Q}`)).json(); render(); } catch (e) {}
   setTimeout(poll, 1000);
 }
-async function reset() { if (confirm("Reset the demo?")) { await fetch("/api/procure/reset", { method: "POST" }); lastHtml = ""; } }
+async function reset() { if (confirm("Reset the demo?")) { await fetch(`/api/procure/reset${Q}`, { method: "POST" }); lastHtml = ""; } }
 function liveCall() { return (state?.calls || []).slice().reverse().find(c => !["done", "no answer", "failed"].includes(c.status)); }
 async function say() {
   const call = liveCall(), input = $("sayInput"), text = input.value.trim();
   if (!call || !text) return;
   input.value = "";
-  await fetch(`/api/procure/call/${call.id}/say`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text }) });
+  await fetch(`/api/procure/call/${call.id}/say${Q}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text }) });
 }
 $("sayInput").addEventListener("keydown", e => { if (e.key === "Enter") say(); });
 const short = name => name.split(/\s+[-–|]\s+|,\s/)[0].split(/\s+/).slice(0, 4).join(" ");
@@ -96,10 +100,10 @@ function render() {
   if (html !== lastHtml) { lastHtml = html; $("scene").innerHTML = html; const c = document.querySelector(".chat"); if (c) c.scrollTop = c.scrollHeight; }
   const live = p === 2 && liveCall() && liveCall().status !== "finishing";
   $("sayBox").style.display = live ? "flex" : "none";
-  if (live && document.activeElement !== $("sayInput")) $("sayInput").focus();
+  if (live && !S && document.activeElement !== $("sayInput")) $("sayInput").focus();
 }
 
-const idle = () => `<div class="center">Waiting for a request on Telegram</div>`;
+const idle = () => `<div class="center">Waiting for a request</div>`;
 
 function request() {
   const r = state.request;

@@ -1,6 +1,5 @@
-"""Telegram bot channel via long polling, so it needs no public URL. The coordinator's chat is remembered on first message."""
+"""Telegram bot channel via long polling, so it needs no public URL. Every chat is its own coordinator session."""
 
-import json
 import os
 import threading
 import time
@@ -10,7 +9,6 @@ import requests
 from . import config
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
-CHAT_FILE = config.DATA / "telegram_chat.json"
 API = f"https://api.telegram.org/bot{TOKEN}"
 LIMIT = 4000
 
@@ -21,12 +19,10 @@ def ready() -> bool:
     return bool(TOKEN)
 
 
-def chat_id() -> int | None:
-    return json.loads(CHAT_FILE.read_text()).get("chat_id") if CHAT_FILE.exists() else None
+GREETING = "Hi, I'm Supply Runner. I find suppliers near Prague, get a quote and collect the paperwork.\n\nTry: Need 20 first aid kits with tourniquets and 2 thermal imaging monoculars, own van, Kharkiv, by 20 November"
 
 
-def send(text: str, buttons: list | None = None) -> str:
-    chat = chat_id()
+def send(text: str, buttons: list | None = None, chat: int | None = None) -> str:
     if not (TOKEN and chat):
         return "not configured" if not TOKEN else "no chat yet"
     try:
@@ -42,8 +38,7 @@ def send(text: str, buttons: list | None = None) -> str:
         return f"failed: {e}"
 
 
-def send_document(path, caption: str = "") -> str:
-    chat = chat_id()
+def send_document(path, caption: str = "", chat: int | None = None) -> str:
     if not (TOKEN and chat):
         return "not configured" if not TOKEN else "no chat yet"
     try:
@@ -75,9 +70,8 @@ def _poll(on_message) -> None:
                     text = f"{text} [attached photo]".strip()
                 if not text:
                     continue
-                CHAT_FILE.write_text(json.dumps({"chat_id": message["chat"]["id"]}))
                 if text == "/start":
-                    send("Hi, I'm Supply Runner. Tell me what supplies you need, where to, and by when.")
+                    send(GREETING, chat=message["chat"]["id"])
                     continue
                 on_message(text, f"telegram:{message['chat']['id']}")
         except Exception:

@@ -59,11 +59,13 @@ def send_whatsapp(text: str, to: str | None = None) -> str:
 
 
 def place_call(call_id: str) -> str:
+    from . import procure
+
     call = client().calls.create(
         to=SUPPLIER_PHONE,
         from_=VOICE_NUMBER,
-        url=f"{config.PUBLIC_URL}/voice/turn?call_id={call_id}",
-        status_callback=f"{config.PUBLIC_URL}/voice/status?call_id={call_id}",
+        url=f"{config.PUBLIC_URL}/voice/turn?call_id={call_id}&s={procure.session.get()}",
+        status_callback=f"{config.PUBLIC_URL}/voice/status?call_id={call_id}&s={procure.session.get()}",
         status_callback_event=["completed"],
     )
     return call.sid

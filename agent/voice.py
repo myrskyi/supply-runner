@@ -69,7 +69,7 @@ def start_call(supplier_id: str, simulated: bool = False) -> str | None:
     procure.update(lambda s: s["calls"].append(call))
     channel = CHANNELS["chat" if simulated else "phone"]
     procure.step(channel["step"].format(name=supplier["name"]))
-    procure.tell_user(channel["start"].format(name=procure.short_name(supplier["name"])))
+    procure.tell_user(channel["start"].format(name=procure.short_name(supplier["name"])) + (procure.shop_hint() if simulated else ""))
     analytics.capture("supplier_call_started", {"simulated": simulated, "category": supplier["category"]})
     if not simulated:
         try:
@@ -166,9 +166,9 @@ def twiml(call_id: str, reply: dict) -> str:
         response.say(reply["say"], voice="Polly.Amy-Neural")
         response.hangup()
         return str(response)
-    gather = Gather(input="speech", action=f"{config.PUBLIC_URL}/voice/turn?call_id={call_id}", method="POST", speech_timeout="auto", language="en-GB")
+    gather = Gather(input="speech", action=f"{config.PUBLIC_URL}/voice/turn?call_id={call_id}&s={procure.session.get()}", method="POST", speech_timeout="auto", language="en-GB")
     gather.say(reply["say"], voice="Polly.Amy-Neural")
     response.append(gather)
-    response.redirect(f"{config.PUBLIC_URL}/voice/turn?call_id={call_id}", method="POST")
+    response.redirect(f"{config.PUBLIC_URL}/voice/turn?call_id={call_id}&s={procure.session.get()}", method="POST")
     return str(response)
 

@@ -1,0 +1,13 @@
+.env
+.env.*
+.git
+.venv
+private
+data/cache
+data/raw
+data/sessions
+data/state.json
+data/procure_state.json
+data/procure_history.json
+data/telegram_chat.json
+**/__pycache__

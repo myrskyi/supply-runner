@@ -15,3 +15,4 @@ data/procure_history.json
 data/telegram_chat.json
 data/documents/Purchase_order_*
 data/documents/Order_confirmation_*
+data/sessions/

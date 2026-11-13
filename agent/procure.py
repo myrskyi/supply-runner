@@ -1,5 +1,8 @@
-"""Procurement agent: a coordinator asks on WhatsApp for supplies, the agent finds suppliers, checks the rules, calls a supplier and reports back."""
+"""Procurement agent: a coordinator asks for supplies, the agent finds suppliers, checks the rules, gets a quote, collects documents and places the order.
+Every coordinator (a web visitor or a Telegram chat) has its own session folder with state and feedback history."""
 
+import contextvars
+import hashlib
 import json
 import math
 import re
@@ -11,12 +14,73 @@ from . import analytics, config, llm, messaging, paperwork, search, telegram
 
 CONFIG_FILE = config.DATA / "procure" / "config.json"
 COMPLIANCE_FILE = config.DATA / "procure" / "compliance.json"
-STATE_FILE = config.DATA / "procure_state.json"
-HISTORY_FILE = config.DATA / "procure_history.json"
+SESSIONS = config.DATA / "sessions"
+SESSION_ID = re.compile(r"^[a-z0-9-]{1,64}$")
 HISTORY_SEED = config.DATA / "procure" / "history_seed.json"
 SHORTLIST_PER_CATEGORY = 3
 
-lock = threading.RLock()
+session = contextvars.ContextVar("session", default="default")
+_locks: dict[str, threading.RLock] = {}
+_locks_guard = threading.Lock()
+
+
+def session_id(sender: str) -> str:
+    channel, _, ident = sender.partition(":")
+    if channel == "web" and SESSION_ID.match(ident):
+        return ident
+    if channel == "telegram":
+        return "tg-" + hashlib.sha256(f"{ident}:{telegram.TOKEN}".encode()).hexdigest()[:16]
+    return "default"
+
+
+class use_session:
+    def __init__(self, sid: str | None):
+        self.sid = sid if sid and SESSION_ID.match(sid) else "default"
+
+    def __enter__(self):
+        self.token = session.set(self.sid)
+        return self.sid
+
+    def __exit__(self, *exc):
+        session.reset(self.token)
+
+
+def spawn(fn, *args) -> None:
+    threading.Thread(target=contextvars.copy_context().run, args=(fn, *args), daemon=True).start()
+
+
+def session_dir():
+    path = SESSIONS / session.get()
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def state_file():
+    return session_dir() / "state.json"
+
+
+def history_file():
+    return session_dir() / "history.json"
+
+
+def meta() -> dict:
+    path = session_dir() / "meta.json"
+    return json.loads(path.read_text()) if path.exists() else {}
+
+
+def set_meta(**values) -> None:
+    (session_dir() / "meta.json").write_text(json.dumps(meta() | values))
+
+
+def shop_hint() -> str:
+    if not (meta().get("telegram_chat") and config.PUBLIC_URL):
+        return ""
+    return f"\n\nYou play the shop: reply to the agent at {config.PUBLIC_URL}/stage?s={session.get()}"
+
+
+def lock() -> threading.RLock:
+    with _locks_guard:
+        return _locks.setdefault(session.get(), threading.RLock())
 
 
 def load_config() -> dict:
@@ -32,13 +96,15 @@ def empty_state() -> dict:
 
 
 def load() -> dict:
-    return json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else empty_state()
+    path = state_file()
+    return json.loads(path.read_text()) if path.exists() else empty_state()
 
 
 def save(state: dict) -> None:
-    tmp = STATE_FILE.with_suffix(".tmp")
+    path = state_file()
+    tmp = path.with_suffix(".tmp")
     tmp.write_text(json.dumps(state, ensure_ascii=False, indent=2))
-    tmp.replace(STATE_FILE)
+    tmp.replace(path)
 
 
 def _now() -> str:
@@ -46,7 +112,7 @@ def _now() -> str:
 
 
 def update(mutate) -> dict:
-    with lock:
+    with lock():
         state = load()
         mutate(state)
         save(state)
@@ -57,14 +123,24 @@ def step(text: str) -> None:
     update(lambda s: s["steps"].append({"at": _now(), "text": text}))
 
 
+def _deliver(send_telegram, send_whatsapp) -> str:
+    chat = meta().get("telegram_chat")
+    if chat:
+        return send_telegram(chat)
+    if session.get() == "default":
+        return send_whatsapp()
+    return "web"
+
+
 def send_file(path, caption: str = "") -> None:
-    delivery = telegram.send_document(path, caption) if telegram.ready() else "not sent"
-    update(lambda s: s["messages"].append({"dir": "out", "at": _now(), "text": f"[file: {path.name}] {caption}".strip(), "delivery": delivery}))
+    delivery = _deliver(lambda chat: telegram.send_document(path, caption, chat), lambda: "not sent")
+    update(lambda s: s["messages"].append({"dir": "out", "at": _now(), "text": caption or path.name, "file": path.name, "delivery": delivery}))
 
 
 def tell_user(text: str, buttons: list | None = None) -> None:
-    delivery = telegram.send(text, buttons) if telegram.ready() else messaging.send_whatsapp(text)
-    update(lambda s: s["messages"].append({"dir": "out", "at": _now(), "text": text, "delivery": delivery}))
+    delivery = _deliver(lambda chat: telegram.send(text, buttons, chat), lambda: messaging.send_whatsapp(text))
+    rows = [row if isinstance(row, list) else [row] for row in buttons or []]
+    update(lambda s: s["messages"].append({"dir": "out", "at": _now(), "text": text, "buttons": rows, "delivery": delivery}))
 
 
 REQUEST_PROMPT = """A coordinator of a humanitarian organisation wrote this message:
@@ -105,7 +181,8 @@ def score(c: dict) -> float:
 
 def history() -> list[dict]:
     seed = json.loads(HISTORY_SEED.read_text())["orders"] if HISTORY_SEED.exists() else []
-    live = json.loads(HISTORY_FILE.read_text()) if HISTORY_FILE.exists() else []
+    path = history_file()
+    live = json.loads(path.read_text()) if path.exists() else []
     return seed + live
 
 
@@ -127,8 +204,9 @@ def find_suppliers(request: dict) -> tuple[list[dict], list[dict]]:
     for key in sorted({i["category"] for i in request["items"]}):
         cat = cfg["categories"][key]
         cache_file = config.CACHE / f"suppliers_{key}.json"
-        if cache_file.exists():
-            result = json.loads(cache_file.read_text())
+        snapshot = config.DATA / "procure" / f"suppliers_{key}.json"
+        if cache_file.exists() or snapshot.exists():
+            result = json.loads((cache_file if cache_file.exists() else snapshot).read_text())
         elif config.APIFY_TOKEN:
             mission = {"search": {"queries": cat["queries"], "location": cfg["pickup_area"], "language": cfg["language"], "max_per_query": cfg["max_per_query"]}}
             result = search.scrape(mission, cache_file)
@@ -343,11 +421,8 @@ Which of the missing items does this message provide? Count an item only if the 
 or names that specific document, or (for payment) says the payment was made. Vague phrases like "docs ready" or a rating do not count. Return one JSON object: {{"received": [ids]}}. Return only the JSON."""
 
 
-docs_lock = threading.Lock()
-
-
 def _documents_reply(text: str) -> None:
-    with docs_lock:
+    with lock():
         if load()["stage"] == "documents":
             _match_documents(text)
 
@@ -410,9 +485,10 @@ def _feedback_reply(text: str) -> None:
     comment = RATING.sub("", text, count=1).strip(" ,.-:/") or ""
     supplier = next((s for s in load()["suppliers"] if s["id"] == order["supplier_id"]), {})
     entry = {"supplier": order["supplier_name"], "category": supplier.get("category"), "rating": rating, "comment": comment, "order": order.get("number"), "at": datetime.now().date().isoformat()}
-    with lock:
-        live = json.loads(HISTORY_FILE.read_text()) if HISTORY_FILE.exists() else []
-        HISTORY_FILE.write_text(json.dumps(live + [entry], ensure_ascii=False, indent=2))
+    with lock():
+        path = history_file()
+        live = json.loads(path.read_text()) if path.exists() else []
+        path.write_text(json.dumps(live + [entry], ensure_ascii=False, indent=2))
     record = our_record(order["supplier_name"])
     update(lambda s: s["order"].update(feedback={"rating": rating, "comment": comment}) or s.update(stage="closed"))
     step(f"Feedback saved: {rating}/5 for {order['supplier_name']}")
@@ -424,6 +500,13 @@ STAGE_HANDLERS = {"offer": _offer_reply, "documents": _documents_reply, "feedbac
 
 
 def handle_inbound(text: str, sender: str = "web") -> None:
+    with use_session(session_id(sender)):
+        if sender.startswith("telegram:"):
+            set_meta(telegram_chat=int(sender.split(":", 1)[1]))
+        _handle(text, sender)
+
+
+def _handle(text: str, sender: str) -> None:
     update(lambda s: s["messages"].append({"dir": "in", "at": _now(), "text": text, "from": sender}))
     analytics.capture("chat_inbound", {"channel": sender.split(":")[0], "length": len(text)})
     state = load()
@@ -432,16 +515,16 @@ def handle_inbound(text: str, sender: str = "web") -> None:
         if 0 <= index < len(state["suppliers"]):
             from . import voice
 
-            threading.Thread(target=voice.start_call_or_simulate, args=(state["suppliers"][index]["id"],), daemon=True).start()
+            spawn(voice.start_call_or_simulate, state["suppliers"][index]["id"])
         else:
             tell_user("I don't have a supplier with that number.")
         return
     stage = load()["stage"]
     if stage in STAGE_HANDLERS:
-        threading.Thread(target=STAGE_HANDLERS[stage], args=(text,), daemon=True).start()
+        spawn(STAGE_HANDLERS[stage], text)
         return
     if stage in ("working", "negotiating"):
         tell_user("Still working on it, I'll update you shortly.")
         return
     update(lambda s: s.update(request=None, suppliers=[], compliance=None, calls=[], steps=[], order=None))
-    threading.Thread(target=run_request, args=(text,), daemon=True).start()
+    spawn(run_request, text)

@@ -1,5 +1,6 @@
 """Specimen PDFs for the demo: what the coordinator attaches, and what the agent sends back. All fictional and watermarked."""
 
+import uuid
 from datetime import datetime
 from pathlib import Path
 
@@ -7,7 +8,8 @@ from fpdf import FPDF
 
 from . import config
 
-FONT = "/System/Library/Fonts/Supplemental/Arial Unicode.ttf"
+FONTS = ["/System/Library/Fonts/Supplemental/Arial Unicode.ttf", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]
+FONT = next((f for f in FONTS if Path(f).exists()), FONTS[-1])
 OUT = config.DATA / "documents"
 ORG = {
     "name": "Charitable Foundation \"Open Road Aid\" (fictional)",
@@ -90,7 +92,7 @@ def coordinator_pack(order_ref: str = "SR-DEMO") -> list[Path]:
 
 
 def purchase_order(order: dict) -> Path:
-    return render(f"Purchase_order_{order.get('number') or 'draft'}.pdf", "Purchase order", f"{datetime.now().strftime('%d.%m.%Y')} · prepared by Supply Runner for the coordinator", [
+    return render(f"Purchase_order_{order.get('number') or uuid.uuid4().hex[:8]}.pdf", "Purchase order", f"{datetime.now().strftime('%d.%m.%Y')} · prepared by Supply Runner for the coordinator", [
         ("Buyer", [ORG["name"], ORG["address"]]),
         ("Supplier", [order["supplier_name"]]),
         ("Items", [order["items"], f"Unit price {order.get('unit_price')} {order.get('currency')}, total {order.get('total')} {order.get('currency')}"]),

@@ -6,7 +6,9 @@ Built by team πrates (Pavlo Myrskyi, Yurii Boiko) at "AI Agents for the Rest of
 
 ## Try it
 
-Message [@pirates_supply_runner_bot](https://t.me/pirates_supply_runner_bot) on Telegram, for example: `Need 20 first aid kits and 2 thermal imaging monoculars, own van, Kharkiv, by 20 November`. The bot runs on our laptop during the hackathon, so it answers only while we are online.
+- In the browser: open the web page, you play both sides. Left is the volunteer chat, right is the agent screen where you answer as the shop. Every visitor gets a private session.
+- On Telegram: message [@pirates_supply_runner_bot](https://t.me/pirates_supply_runner_bot), for example `Need 20 first aid kits with tourniquets and 2 thermal imaging monoculars, own van, Kharkiv, by 20 November`. The bot sends you a link to your shop page when the agent asks for a quote.
+- The shop is played by you, prices are not real. Attached documents are specimen PDFs.
 
 ## Why
 
@@ -30,10 +32,16 @@ uv run uvicorn agent.server:app --port 8000
 ```
 
 - Fill in `FEATHERLESS_API_KEY`, `APIFY_TOKEN`, `POSTHOG_API_KEY` and `TELEGRAM_BOT_TOKEN` in `.env`. Never commit it.
-- Send `/start` to your bot, then a request.
-- Presentation view: `http://localhost:8000/stage` (the supplier replies are typed there).
-- Operator view with a built-in chat: `http://localhost:8000/`.
+- Play page: `http://localhost:8000/`. Presentation view: `/stage?s=<session>`. Older operator view: `/operator`.
+- Each web visitor and each Telegram chat has its own state in `data/sessions/<id>/`.
 - Specimen documents to attach in Telegram: `data/documents/` (regenerate with `uv run python -m agent.paperwork`).
+
+## Deploy
+
+- `Dockerfile` and `render.yaml` are ready for a Render free web service (Blueprint from this repo).
+- Set `FEATHERLESS_API_KEY`, `APIFY_TOKEN`, `POSTHOG_API_KEY`, `TELEGRAM_BOT_TOKEN` and `PUBLIC_URL` (the service URL) in the Render dashboard.
+- Only one process may poll a Telegram bot, so stop any local server using the same token.
+- Supplier search falls back to the committed snapshots in `data/procure/suppliers_*.json` when the Apify cache is empty.
 
 ## Code
 
@@ -42,4 +50,5 @@ uv run uvicorn agent.server:app --port 8000
 - `agent/telegram.py`: Telegram bot via long polling, buttons, file sending.
 - `agent/paperwork.py`: specimen PDFs, purchase order and order confirmation.
 - `data/procure/compliance.json`: curated rules with sources and lead times.
-- `web/stage.html`: one-screen presentation view.
+- `web/play.html`: public play page (volunteer chat plus the agent screen).
+- `web/stage.html`: one-screen agent view, where you also answer as the shop.

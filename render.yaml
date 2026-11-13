@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: supply-runner
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      - key: FEATHERLESS_API_KEY
+        sync: false
+      - key: APIFY_TOKEN
+        sync: false
+      - key: POSTHOG_API_KEY
+        sync: false
+      - key: POSTHOG_HOST
+        value: https://eu.i.posthog.com
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: PUBLIC_URL
+        sync: false

@@ -1,0 +1,544 @@
+{
+  "source": "apify",
+  "queries": [
+    "termovize prodej",
+    "noční vidění termovize obchod",
+    "army shop termovize"
+  ],
+  "location": "Praha, Česko",
+  "checked_at": "2026-11-13T14:22:12+00:00",
+  "carriers": [
+    {
+      "id": "ChIJhVPtKliUC0cRUCw4CPc1PeE",
+      "name": "Armyshop M*A*S*H",
+      "category": "Prodejna",
+      "address": "24, Vltavská 548, Smíchov, 150 00 Praha 5, Česko",
+      "lat": 50.069786,
+      "lng": 14.4065923,
+      "phone": "+420 728 332 288",
+      "website": "http://www.armyshopmash.cz/",
+      "emails": [
+        "info@armyshopmash.cz"
+      ],
+      "rating": 4.2,
+      "reviews": 94,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=Armyshop%20M*A*S*H&query_place_id=ChIJhVPtKliUC0cRUCw4CPc1PeE",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJDXNyeH6WC0cRi5Pg8rxvjY8",
+      "name": "Army+antik shop",
+      "category": "Prodejna vojenského zboží",
+      "address": "vchod, Voskovcova, Trnkovo nám. 1035/22, Hlubočepy, 152 00 Praha 5, Česko",
+      "lat": 50.029993,
+      "lng": 14.36818,
+      "phone": "+420 602 331 810",
+      "website": "http://www.armyantik.cz/",
+      "emails": [
+        "shop@armyantik.cz"
+      ],
+      "rating": 3.3,
+      "reviews": 30,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=Army%2Bantik%20shop&query_place_id=ChIJDXNyeH6WC0cRi5Pg8rxvjY8",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJRWrls4KUC0cRXNK0NG1yy-w",
+      "name": "M1 Army Shop",
+      "category": "Prodejna vojenského zboží",
+      "address": "Veletržní 7, 170 00 Praha 7-Holešovice, Česko",
+      "lat": 50.102445,
+      "lng": 14.435899,
+      "phone": "+420 224 251 232",
+      "website": "http://www.m1armyshop.cz/",
+      "emails": [
+        "m1armyshop@seznam.cz"
+      ],
+      "rating": 3.7,
+      "reviews": 112,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=M1%20Army%20Shop&query_place_id=ChIJRWrls4KUC0cRXNK0NG1yy-w",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJN6zmKfSUC0cRDAiyJTpk4-Y",
+      "name": "No Limit Surplus",
+      "category": "Prodej textilu a oděvů",
+      "address": "Trojanova 2023/14, 120 00 Nové Město, Česko",
+      "lat": 50.0741789,
+      "lng": 14.4159191,
+      "phone": "+420 602 319 717",
+      "website": "https://www.nolimitsurplus.cz/",
+      "emails": [
+        "obchod@nolimitsurplus.cz"
+      ],
+      "rating": 4.6,
+      "reviews": 70,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=No%20Limit%20Surplus&query_place_id=ChIJN6zmKfSUC0cRDAiyJTpk4-Y",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJo1Wlfl7rC0cR8CPDwDyFKf0",
+      "name": "Armyshop ArmySurplus",
+      "category": "Prodejna vojenského zboží",
+      "address": "Davídkova 1250/87, 182 00 Praha 8, Česko",
+      "lat": 50.1246021,
+      "lng": 14.4722393,
+      "phone": "+420 283 882 828",
+      "website": "https://www.petreq.cz/",
+      "emails": [
+        "info@petreq.cz"
+      ],
+      "rating": 4.7,
+      "reviews": 132,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=Armyshop%20ArmySurplus&query_place_id=ChIJo1Wlfl7rC0cR8CPDwDyFKf0",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJj2pjKJHyC0cRk8Q9ICio1w0",
+      "name": "ARMYSHOP 101",
+      "category": "Prodejna vojenského zboží",
+      "address": "Náchodská 700/97, 193 00 Horní Počernice, Česko",
+      "lat": 50.1151444,
+      "lng": 14.6105576,
+      "phone": "+420 603 429 979",
+      "website": "http://www.armyshop101.cz/",
+      "emails": [
+        "info@armyshop101.cz"
+      ],
+      "rating": 4.7,
+      "reviews": 162,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=ARMYSHOP%20101&query_place_id=ChIJj2pjKJHyC0cRk8Q9ICio1w0",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJT_6HQkOUC0cRy7ozITR77GM",
+      "name": "Army Shop CI5",
+      "category": "Prodejna vojenského zboží",
+      "address": "Moulíkova 2240, 150 00 Praha 5-Smíchov, Česko",
+      "lat": 50.0600172,
+      "lng": 14.4098871,
+      "phone": "+420 605 219 473",
+      "website": "http://army-shop-ci5.cz/",
+      "emails": [
+        "army@army-shop-ci5.cz",
+        "moulikova5@army-shop-ci5.cz"
+      ],
+      "rating": 4,
+      "reviews": 50,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=Army%20Shop%20CI5&query_place_id=ChIJT_6HQkOUC0cRy7ozITR77GM",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJ65OzFKSUC0cRlRIVh4RNUU0",
+      "name": "ARMED army shop Praha",
+      "category": "Prodejna vojenského zboží",
+      "address": "Kolbenova 882, 190 00 Praha 9-Vysočany, Česko",
+      "lat": 50.1111294,
+      "lng": 14.5056596,
+      "phone": "+420 774 416 975",
+      "website": "https://www.armed.cz/",
+      "emails": [
+        "info@armed.cz",
+        "armyshop@armed.cz",
+        "zbrane@armed.cz"
+      ],
+      "rating": 4.6,
+      "reviews": 1122,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=ARMED%20army%20shop%20Praha&query_place_id=ChIJ65OzFKSUC0cRlRIVh4RNUU0",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJuxlu0S--C0cRapV_8sLX8LI",
+      "name": "e-ArmyShop",
+      "category": "Prodejna vojenského zboží",
+      "address": "Čistovická 90/15, 163 00 Praha 17-Řepy, Česko",
+      "lat": 50.074732,
+      "lng": 14.3216913,
+      "phone": "+420 777 733 263",
+      "website": "http://www.e-armyshop.cz/",
+      "emails": [
+        "obchod@e-armyshop.cz"
+      ],
+      "rating": 4.8,
+      "reviews": 423,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=e-ArmyShop&query_place_id=ChIJuxlu0S--C0cRapV_8sLX8LI",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJfV9gJFqUC0cRdlHSlnMrfeU",
+      "name": "Zbraně Brymová",
+      "category": "Prodejna zbraní",
+      "address": "Nádražní 7, 150 00 Praha 5-Smíchov, Česko",
+      "lat": 50.0664903,
+      "lng": 14.4072519,
+      "phone": "+420 603 845 553",
+      "website": "http://www.zbranebrymova.com/",
+      "emails": [
+        "info@zbranebrymova.com"
+      ],
+      "rating": 3.4,
+      "reviews": 136,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=Zbran%C4%9B%20Brymov%C3%A1&query_place_id=ChIJfV9gJFqUC0cRdlHSlnMrfeU",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJ4TVAhCOVC0cRXkRSbk0tyc0",
+      "name": "Kentaurzbrane",
+      "category": "Prodejna zbraní",
+      "address": "Zborovská 31, 150 00 Praha 5-Smíchov, Česko",
+      "lat": 50.0776526,
+      "lng": 14.4070345,
+      "phone": "+420 777 554 040",
+      "website": "http://www.kentaurzbrane.cz/",
+      "emails": [
+        "info@kentaurzbrane.cz"
+      ],
+      "rating": 4.3,
+      "reviews": 263,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=Kentaurzbrane&query_place_id=ChIJ4TVAhCOVC0cRXkRSbk0tyc0",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJgwqUXrSXC0cR0jP2nttOD1s",
+      "name": "Top Guns Company s.r.o.",
+      "category": "Prodejna zbraní",
+      "address": "Strakonická 81, 159 00 Praha 5, Česko",
+      "lat": 50.001564,
+      "lng": 14.3957073,
+      "phone": "+420 725 933 328",
+      "website": "http://www.top-guns.eu/",
+      "emails": [
+        "info@top-guns.eu"
+      ],
+      "rating": 4.7,
+      "reviews": 131,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=Top%20Guns%20Company%20s.r.o.&query_place_id=ChIJgwqUXrSXC0cR0jP2nttOD1s",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJf_GSUFWVC0cRyv8loGDG-SY",
+      "name": "C.I.D Praha s.r.o.",
+      "category": "Prodejna zbraní",
+      "address": "Gorazdova 1994/9, 120 00 Nové Město, Česko",
+      "lat": 50.0745453,
+      "lng": 14.4146833,
+      "phone": "+420 775 627 358",
+      "website": "http://www.cidpraha.cz/",
+      "emails": [
+        "cidpraha@cidpraha.cz",
+        "obchod@cidpraha.cz"
+      ],
+      "rating": 4.9,
+      "reviews": 94,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=C.I.D%20Praha%20s.r.o.&query_place_id=ChIJf_GSUFWVC0cRyv8loGDG-SY",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJry2R7EiTC0cRX62SHPXBPTc",
+      "name": "Bexamed s.r.o.",
+      "category": "Prodej zdravotnických potřeb",
+      "address": "Miranova 148/10, 102 00 Praha 15-Hostivař, Česko",
+      "lat": 50.0544586,
+      "lng": 14.5295412,
+      "phone": "+420 284 683 063",
+      "website": "http://www.bexamed.cz/",
+      "emails": [
+        "objednavky@bexamed.cz",
+        "info@bexamed.cz"
+      ],
+      "rating": 3.8,
+      "reviews": 18,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=Bexamed%20s.r.o.&query_place_id=ChIJry2R7EiTC0cRX62SHPXBPTc",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJT9y-j36UC0cRBNkDxMKdLDg",
+      "name": "X-ArmyShop",
+      "category": "Prodejna vojenského zboží",
+      "address": "nám. Bratří Synků 4, 140 00 Praha 4-Nusle, Česko",
+      "lat": 50.0646428,
+      "lng": 14.4414613,
+      "phone": "+420 774 493 787",
+      "website": "http://www.x-armyshop.cz/",
+      "emails": [
+        "prodej@x-armyshop.cz",
+        "info@x-armyshop.cz"
+      ],
+      "rating": 4.6,
+      "reviews": 183,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=X-ArmyShop&query_place_id=ChIJT9y-j36UC0cRBNkDxMKdLDg",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJgQAYoGWUC0cRmai_4bmP7xM",
+      "name": "ARMS-CZ a.s.",
+      "category": "Prodejna loveckých potřeb",
+      "address": "11, Mikuláše z Husi 921, Nusle, 140 00 Praha 4, Česko",
+      "lat": 50.0605698,
+      "lng": 14.4271409,
+      "phone": "+420 602 783 080",
+      "website": "http://www.arms-cz.cz/",
+      "emails": [
+        "shop@arms-cz.cz",
+        "humpolec@arms-cz.cz",
+        "krejci@arms-cz.cz",
+        "praha@arms-cz.cz",
+        "sklad@arms-cz.cz",
+        "snizek@arms-cz.cz"
+      ],
+      "rating": 4.7,
+      "reviews": 58,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=ARMS-CZ%20a.s.&query_place_id=ChIJgQAYoGWUC0cRmai_4bmP7xM",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJNz29_SaVC0cR0mkMRd15WJU",
+      "name": "W-Technika Group s.r.o.",
+      "category": "Dodavatel měřicích přístrojů",
+      "address": "Na Okraji 335/42, 162 00 Praha 6, Česko",
+      "lat": 50.089222,
+      "lng": 14.3423464,
+      "phone": "+420 720 994 658",
+      "website": "http://www.w-technika.cz/",
+      "emails": [
+        "info@w-technika.cz",
+        "adam.svestka@w-technika.cz",
+        "anna.korbarova@w-technika.cz",
+        "lukas.bartos@w-technika.cz",
+        "jan.kovar@w-technika.cz",
+        "adela.brnovjakova@w-technika.cz",
+        "katerina.jerabkova@w-technika.cz",
+        "obchod@w-technika.cz"
+      ],
+      "rating": 4.9,
+      "reviews": 86,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=W-Technika%20Group%20s.r.o.&query_place_id=ChIJNz29_SaVC0cR0mkMRd15WJU",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJMUI1uJqVC0cRorB-VRLdFg8",
+      "name": "Lira IS s.r.o.",
+      "category": "Prodejna zbraní",
+      "address": "Brdlíkova 287, 150 00 Praha 5, Česko",
+      "lat": 50.0701921,
+      "lng": 14.3490469,
+      "phone": "+420 735 121 011",
+      "website": "http://www.prodej-zbrani.cz/",
+      "emails": [
+        "info@prodej-zbrani.cz"
+      ],
+      "rating": 4.6,
+      "reviews": 52,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=Lira%20IS%20s.r.o.&query_place_id=ChIJMUI1uJqVC0cRorB-VRLdFg8",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJnUI9GhGTC0cRvxlFKWuFoSc",
+      "name": "SUPERATOR Outdoor & Tactical eshop s outdorovým zbožím",
+      "category": "Prodejna zbraní",
+      "address": "Jankovcova 1569/2c, 190 00 Praha 9-Holešovice, Česko",
+      "lat": 50.1028302,
+      "lng": 14.4568002,
+      "phone": "+420 737 666 572",
+      "website": "https://www.superator.eu/",
+      "emails": [
+        "shop@superator.eu"
+      ],
+      "rating": 4.9,
+      "reviews": 286,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=SUPERATOR%20Outdoor%20%26%20Tactical%20eshop%20s%20outdorov%C3%BDm%20zbo%C5%BE%C3%ADm&query_place_id=ChIJnUI9GhGTC0cRvxlFKWuFoSc",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJMUI1uJqVC0cRl5a09LVh4DI",
+      "name": "Prodej-zbrani.cz",
+      "category": "Prodejna zbraní",
+      "address": "Brdlíkova 287/1D, 150 00 Praha 5-Motol, Česko",
+      "lat": 50.0701921,
+      "lng": 14.3490469,
+      "phone": "+420 735 121 011",
+      "website": "https://www.prodej-zbrani.cz/",
+      "emails": [
+        "info@prodej-zbrani.cz"
+      ],
+      "rating": 4.6,
+      "reviews": 116,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=Prodej-zbrani.cz&query_place_id=ChIJMUI1uJqVC0cRl5a09LVh4DI",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJ_yT0esmMC0cRNzsX55En6I4",
+      "name": "Bohemia Air Soft - Prodejna a Servis",
+      "category": "Prodejna pomůcek pro airsoft",
+      "address": "Ratajská 504, 190 16 Praha 21, Česko",
+      "lat": 50.0766759,
+      "lng": 14.6555907,
+      "phone": "+420 774 774 378",
+      "website": "https://airsoftshop.cz/",
+      "emails": [
+        "bas@airsoft.cz",
+        "prodejna@airsoft.cz",
+        "servis@airsoft.cz",
+        "objednavky@airsoft.cz",
+        "obchod@airsoft.cz",
+        "export@airsoft.cz",
+        "logistics@airsoft.cz",
+        "info@airsoft.cz",
+        "purchases@airsoft.cz"
+      ],
+      "rating": 4.5,
+      "reviews": 188,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=Bohemia%20Air%20Soft%20-%20Prodejna%20a%20Servis&query_place_id=ChIJ_yT0esmMC0cRNzsX55En6I4",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJbXwkgmCSC0cRgZ0tfyXUq4o",
+      "name": "Netfotbal",
+      "category": "Prodejna sportovního oblečení",
+      "address": "Milánská 413, 109 00 Praha 15-Horní Měcholupy, Česko",
+      "lat": 50.0423018,
+      "lng": 14.5541459,
+      "phone": "+420 601 365 365",
+      "website": "http://www.netfotbal.cz/",
+      "emails": [
+        "info@netfotbal.cz",
+        "grafika@netfotbal.cz"
+      ],
+      "rating": 3.7,
+      "reviews": 39,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=Netfotbal&query_place_id=ChIJbXwkgmCSC0cRgZ0tfyXUq4o",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJI_OLmcmUC0cRitu-khoie58",
+      "name": "BEAREKA",
+      "category": "Prodejna zbraní",
+      "address": "Nad Rokoskou 111 - nejbližší identifikovatelná adresa, toto je možný příjezd k nám do prodejny, z hlavní se k nám nedá odbočit (adresa, V Holešovičkách 593/1A, Libeň, 182 00 Praha 8, Česko",
+      "lat": 50.1177557,
+      "lng": 14.450949,
+      "phone": "+420 245 008 909",
+      "website": "http://www.beareka.cz/",
+      "emails": [
+        "prodej@beareka.cz",
+        "adr@coi.gov.cz"
+      ],
+      "rating": 4.7,
+      "reviews": 199,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=BEAREKA&query_place_id=ChIJI_OLmcmUC0cRitu-khoie58",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJSQ12FnWNC0cRfb-tXw5obdU",
+      "name": "Zbraně Driml Praha",
+      "category": "Prodejna zbraní",
+      "address": "Dolní Měcholupy Praha 10 - Dolní Měcholupy CZ, Kutnohorská 11/57, 111 01 Praha 10, Česko",
+      "lat": 50.0562891,
+      "lng": 14.562595,
+      "phone": "+420 776 543 008",
+      "website": "https://www.zjj.cz/",
+      "emails": [
+        "info@zjj.cz"
+      ],
+      "rating": 5,
+      "reviews": 17,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=Zbran%C4%9B%20Driml%20Praha&query_place_id=ChIJSQ12FnWNC0cRfb-tXw5obdU",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJoX1MU1OTC0cRmTztaHpsORs",
+      "name": "X-ArmyShop",
+      "category": "Prodejna vojenského zboží",
+      "address": "Ronkova 1831/6, 180 00 Praha 8-Palmovka, Česko",
+      "lat": 50.1053281,
+      "lng": 14.4769647,
+      "phone": "+420 775 706 407",
+      "website": "http://www.x-armyshop.cz/",
+      "emails": [
+        "prodej@x-armyshop.cz",
+        "info@x-armyshop.cz"
+      ],
+      "rating": 4.7,
+      "reviews": 135,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=X-ArmyShop&query_place_id=ChIJoX1MU1OTC0cRmTztaHpsORs",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJ5xJSh5OUC0cRjEmERqS1ngs",
+      "name": "Česká zbrojovka a.s. - Podniková prodejna",
+      "category": "Prodejna zbraní",
+      "address": "37, Opletalova 1284, Nové Město, 110 00 Praha, Česko",
+      "lat": 50.0844934,
+      "lng": 14.4330317,
+      "phone": "+420 225 375 800",
+      "website": "https://prodejna.czub.cz/",
+      "emails": [
+        "prodejna.praha@czub.cz",
+        "kasapha@czub.cz"
+      ],
+      "rating": 4.6,
+      "reviews": 380,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=%C4%8Cesk%C3%A1%20zbrojovka%20a.s.%20-%20Podnikov%C3%A1%20prodejna&query_place_id=ChIJ5xJSh5OUC0cRjEmERqS1ngs",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJBcOhylWTC0cRv__VQhrCwmI",
+      "name": "Plynoservis Jílek s.r.o. - Plynařské práce, roční servis, opravy a prodej plynových kotlů",
+      "category": "Plynoinstalatér",
+      "address": "Nár. hrdinů 1089 Dolní počernice Praha 9 CZ, 190 12 Praha 9, Česko",
+      "lat": 50.0778137,
+      "lng": 14.5685836,
+      "phone": "+420 602 234 040",
+      "website": "https://www.plynoservis-jilek.cz/",
+      "emails": [],
+      "rating": 3.2,
+      "reviews": 168,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=Plynoservis%20J%C3%ADlek%20s.r.o.%20-%20Plyna%C5%99sk%C3%A9%20pr%C3%A1ce%2C%20ro%C4%8Dn%C3%AD%20servis%2C%20opravy%20a%20prodej%20plynov%C3%BDch%20kotl%C5%AF&query_place_id=ChIJBcOhylWTC0cRv__VQhrCwmI",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    },
+    {
+      "id": "ChIJERwRUleRC0cRyLb4vbr41UI",
+      "name": "Zdeněk Nevoránek - Zbraně a střelivo",
+      "category": "Prodejna zbraní",
+      "address": "Mariánská 993/46, 142 00 Praha 12-Kamýk, Česko",
+      "lat": 50.0213438,
+      "lng": 14.4389263,
+      "phone": "+420 723 589 493",
+      "website": "https://www.nevoranek.com/?utm_source=google&utm_medium=organic&utm_campaign=gbp",
+      "emails": [
+        "info@nevoranek.com"
+      ],
+      "rating": 4.7,
+      "reviews": 148,
+      "source_url": "https://www.google.com/maps/search/?api=1&query=Zden%C4%9Bk%20Nevor%C3%A1nek%20-%20Zbran%C4%9B%20a%20st%C5%99elivo&query_place_id=ChIJERwRUleRC0cRyLb4vbr41UI",
+      "source": "Google Maps via Apify",
+      "checked_at": "2026-11-13T14:22:12+00:00"
+    }
+  ]
+}

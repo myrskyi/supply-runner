@@ -12,7 +12,7 @@ from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import analytics, compare, config, evaluate, extract, llm, messaging, procure, rfq, rules, search, telegram, voice
+from . import analytics, compare, config, evaluate, extract, llm, messaging, paperwork, procure, rfq, rules, search, telegram, voice
 
 DEMO_ROUND = "r1"
 
@@ -204,8 +204,26 @@ def post_reset(keep_rules: bool = False):
 
 
 @app.get("/")
+def play_page():
+    return FileResponse(config.WEB / "play.html")
+
+
+@app.get("/operator")
 def index():
     return FileResponse(config.WEB / "index.html")
+
+
+@app.get("/healthz")
+def healthz():
+    return {"ok": True}
+
+
+@app.get("/files/{name}")
+def document_file(name: str):
+    path = paperwork.OUT / name
+    if "/" in name or not name.endswith(".pdf") or not path.is_file():
+        raise HTTPException(404)
+    return FileResponse(path, media_type="application/pdf")
 
 
 @app.get("/stage")
@@ -227,10 +245,15 @@ class SayBody(BaseModel):
 
 
 @app.get("/api/procure")
-def procure_state():
+def procure_state(s: str | None = None):
+    with procure.use_session(s):
+        return _procure_view()
+
+
+def _procure_view() -> dict:
     return procure.load() | {
         "integrations": {
-            "telegram": telegram.ready() and telegram.chat_id() is not None,
+            "telegram": telegram.ready() and procure.meta().get("telegram_chat") is not None,
             "whatsapp": messaging.whatsapp_ready(),
             "voice": messaging.voice_ready(),
             "apify": bool(config.APIFY_TOKEN),
@@ -242,37 +265,39 @@ def procure_state():
 
 
 @app.post("/api/procure/message")
-def procure_message(body: InboundBody):
-    procure.handle_inbound(body.text.strip(), "web")
-    return procure_state()
+def procure_message(body: InboundBody, s: str | None = None):
+    procure.handle_inbound(body.text.strip(), f"web:{s}" if s else "web")
+    return procure_state(s)
 
 
 @app.post("/api/procure/reset")
-def procure_reset():
-    with procure.lock:
+def procure_reset(s: str | None = None):
+    with procure.use_session(s), procure.lock():
         procure.save(procure.empty_state())
-    return procure_state()
+        return _procure_view()
 
 
 @app.post("/api/procure/call/{supplier_id}")
-def procure_call(supplier_id: str, simulated: bool = False):
-    call_id = voice.start_call(supplier_id, simulated=simulated)
-    if call_id is None:
-        raise HTTPException(400, "call not started")
-    if simulated:
-        voice.turn(call_id, None)
-    return procure_state()
+def procure_call(supplier_id: str, simulated: bool = False, s: str | None = None):
+    with procure.use_session(s):
+        call_id = voice.start_call(supplier_id, simulated=simulated)
+        if call_id is None:
+            raise HTTPException(400, "call not started")
+        if simulated:
+            voice.turn(call_id, None)
+        return _procure_view()
 
 
 @app.post("/api/procure/call/{call_id}/say")
-def procure_call_say(call_id: str, body: SayBody):
-    call = next((c for c in procure.load()["calls"] if c["id"] == call_id), None)
-    if call is None or call["status"] in ("done", "finishing", "no answer"):
-        raise HTTPException(409, "call is over")
-    reply = voice.turn(call_id, body.text.strip() or None)
-    if reply["done"]:
-        voice.finish(call_id)
-    return procure_state()
+def procure_call_say(call_id: str, body: SayBody, s: str | None = None):
+    with procure.use_session(s):
+        call = next((c for c in procure.load()["calls"] if c["id"] == call_id), None)
+        if call is None or call["status"] in ("done", "finishing", "no answer"):
+            raise HTTPException(409, "call is over")
+        reply = voice.turn(call_id, body.text.strip() or None)
+        if reply["done"]:
+            voice.finish(call_id)
+        return _procure_view()
 
 
 @app.post("/whatsapp")
@@ -280,22 +305,24 @@ async def whatsapp_webhook(request: Request):
     form = await request.form()
     text, sender = str(form.get("Body") or "").strip(), str(form.get("From") or "")
     if text:
-        procure.handle_inbound(text, sender)
+        procure.handle_inbound(text, "whatsapp")
     return Response("<Response></Response>", media_type="application/xml")
 
 
 @app.post("/voice/turn")
-async def voice_turn(request: Request, call_id: str):
+async def voice_turn(request: Request, call_id: str, s: str | None = None):
     form = await request.form()
-    reply = voice.turn(call_id, str(form.get("SpeechResult") or "").strip() or None)
-    if reply["done"]:
-        threading.Thread(target=voice.finish, args=(call_id,), daemon=True).start()
-    return Response(voice.twiml(call_id, reply), media_type="application/xml")
+    with procure.use_session(s):
+        reply = voice.turn(call_id, str(form.get("SpeechResult") or "").strip() or None)
+        if reply["done"]:
+            procure.spawn(voice.finish, call_id)
+        return Response(voice.twiml(call_id, reply), media_type="application/xml")
 
 
 @app.post("/voice/status")
-async def voice_status(call_id: str):
-    threading.Thread(target=voice.finish, args=(call_id,), daemon=True).start()
+async def voice_status(call_id: str, s: str | None = None):
+    with procure.use_session(s):
+        procure.spawn(voice.finish, call_id)
     return Response("", status_code=204)
 
 

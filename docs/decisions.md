@@ -6,3 +6,4 @@ One line each: time, decision, why.
 - 2026-11-13: Leading candidate (still brainstorming): competitor scout for local small businesses with a self-checking time-travel loop. Scores best on judging criteria plus novelty; plain review analysis already exists.
 - 2026-11-13: Shared repo with docs and code, AGENTS.md as the single instruction file for Codex and Claude Code. Push to main, no PRs today.
 - 2026-11-13 15:15: Scope changed to Supply Runner: a WhatsApp agent that finds suppliers of medical and dual-use goods, checks export and import paperwork, and phones suppliers by voice. Reuses Apify search, Featherless, PostHog and the self-improving offer reader.
+- 2026-11-13 after demo: Public play mode. One web page where the visitor plays volunteer and shop with a private session, Telegram per chat, deploy via Docker on Render free plan. Lets the jury try it without our laptop.

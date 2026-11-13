@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Supply Runner</title>
+<style>
+:root { --bg:#f3f4f6; --card:#fff; --ink:#111827; --muted:#6b7280; --line:#e5e7eb; --brand:#0f766e; --brandbg:#ccfbf1; --sup:#6d28d9; --supbg:#ede9fe; }
+* { box-sizing:border-box; }
+html, body { height:100%; }
+body { margin:0; font:15px/1.45 -apple-system, system-ui, sans-serif; background:var(--bg); color:var(--ink); display:flex; flex-direction:column; }
+header { padding:14px 20px 10px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.logo { width:34px; height:34px; border-radius:9px; background:var(--brand); color:#fff; display:grid; place-items:center; font-weight:700; }
+h1 { font-size:20px; margin:0; }
+.lead { color:var(--muted); font-size:14px; flex:1; min-width:240px; }
+.lead b { color:var(--ink); }
+.lead a { color:var(--brand); }
+.wrap { flex:1; min-height:0; display:grid; grid-template-columns:minmax(320px, 440px) 1fr; gap:14px; padding:0 20px 16px; }
+.pane { min-height:0; background:var(--card); border:1px solid var(--line); border-radius:16px; display:flex; flex-direction:column; overflow:hidden; }
+.pane h2 { margin:0; padding:12px 16px; font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; }
+.pane h2 span.role { font-weight:600; color:var(--brand); text-transform:none; letter-spacing:0; font-size:13px; }
+.pane.shop h2 span.role { color:var(--sup); }
+.msgs { flex:1; min-height:0; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; }
+.msg { max-width:88%; padding:9px 12px; border-radius:14px; white-space:pre-wrap; word-wrap:break-word; }
+.msg.out { align-self:flex-start; background:#f3f4f6; border-top-left-radius:4px; }
+.msg.in { align-self:flex-end; background:var(--brand); color:#fff; border-top-right-radius:4px; }
+.msg a { color:var(--brand); font-weight:600; }
+.btns { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.btns button, .quick button { border:1px solid var(--brand); background:#fff; color:var(--brand); border-radius:10px; padding:7px 11px; font:inherit; font-weight:600; cursor:pointer; }
+.btns button:hover, .quick button:hover { background:var(--brandbg); }
+.quick { display:flex; flex-wrap:wrap; gap:6px; padding:0 14px 10px; }
+.note { width:100%; background:var(--supbg); color:var(--sup); border-radius:10px; padding:8px 12px; font-weight:600; }
+.empty { margin:auto; text-align:center; color:var(--muted); max-width:300px; }
+form { display:flex; gap:8px; padding:12px 14px; border-top:1px solid var(--line); }
+form input { flex:1; min-width:0; border:1px solid var(--line); border-radius:10px; padding:10px 12px; font:inherit; outline:none; }
+form input:focus { border-color:var(--brand); }
+form button { border:0; border-radius:10px; padding:0 16px; background:var(--brand); color:#fff; font:inherit; font-weight:600; cursor:pointer; }
+iframe { flex:1; border:0; width:100%; min-height:0; }
+.reset { background:none; border:0; color:var(--muted); font:inherit; font-size:12px; cursor:pointer; text-transform:none; letter-spacing:0; }
+@media (max-width: 860px) {
+  .wrap { grid-template-columns:1fr; padding:0 16px 16px; }
+  .pane.chat { height:75vh; }
+  .pane.shop { height:90vh; }
+  header { padding:12px 16px 8px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">SR</div><h1>Supply Runner</h1>
+  <div class="lead">An AI agent that buys aid supplies for Ukrainian volunteers. <b>Left:</b> you are the volunteer coordinator. <b>Right:</b> you are the shop the agent writes to. Also on <a href="https://t.me/pirates_supply_runner_bot" target="_blank" rel="noopener">Telegram</a>.</div>
+</header>
+<div class="wrap">
+  <section class="pane chat">
+    <h2><span>Coordinator chat</span><span class="role">You: volunteer</span></h2>
+    <div class="msgs" id="msgs"></div>
+    <div class="quick" id="quick"></div>
+    <form id="form"><input id="input" placeholder="Message the agent" autocomplete="off"><button>Send</button></form>
+  </section>
+  <section class="pane shop">
+    <h2><span>Agent screen</span><span><span class="role">You: the shop, when asked</span> · <button class="reset" onclick="reset()">start over</button></span></h2>
+    <iframe id="stage" title="Agent screen"></iframe>
+  </section>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const EXAMPLE = "Need 20 first aid kits with tourniquets and 2 thermal imaging monoculars, own van, Kharkiv, by 20 November";
+const DEMO_DOCS = ["End_user_letter.pdf", "Humanitarian_aid_declaration.pdf", "Export_licence_copy.pdf", "Driver_power_of_attorney_and_insurance.pdf", "Payment_confirmation.pdf"];
+
+function sessionId() {
+  let id = null;
+  try { id = localStorage.getItem("sr_session"); } catch (e) {}
+  if (!id || !/^[a-z0-9-]{8,64}$/.test(id)) {
+    id = "w" + Array.from(crypto.getRandomValues(new Uint8Array(10)), b => (b % 36).toString(36)).join("");
+    try { localStorage.setItem("sr_session", id); } catch (e) {}
+  }
+  return id;
+}
+const S = sessionId(), Q = `?s=${S}`;
+$("stage").src = `/stage${Q}`;
+let state = null, lastHtml = "", sending = false;
+
+async function poll() {
+  try { state = await (await fetch(`/api/procure${Q}`)).json(); render(); } catch (e) {}
+  setTimeout(poll, 1000);
+}
+async function send(text) {
+  text = text.trim();
+  if (!text || sending) return;
+  sending = true;
+  try { state = await (await fetch(`/api/procure/message${Q}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text }) })).json(); render(); }
+  finally { sending = false; }
+}
+async function reset() {
+  if (!confirm("Start over?")) return;
+  state = await (await fetch(`/api/procure/reset${Q}`, { method: "POST" })).json();
+  render();
+}
+$("form").addEventListener("submit", e => { e.preventDefault(); const v = $("input").value; $("input").value = ""; send(v); });
+
+function bubble(m, last) {
+  const body = m.file ? `📄 <a href="/files/${encodeURIComponent(m.file)}" target="_blank" rel="noopener">${esc(m.file)}</a>${m.text && m.text !== m.file ? `\n${esc(m.text)}` : ""}` : esc(m.text);
+  const btns = last && m.buttons?.length ? `<div class="btns">${m.buttons.flat().map(([label, data]) => `<button data-send="${esc(data)}">${esc(label)}</button>`).join("")}</div>` : "";
+  return `<div class="msg ${m.dir === "in" ? "in" : "out"}">${body}${btns}</div>`;
+}
+
+function quick() {
+  const stage = state.stage;
+  if (stage === "idle" || stage === "closed") return [["Use example request", EXAMPLE]];
+  const call = (state.calls || []).at(-1);
+  if (call && ["dialling", "talking"].includes(call.status)) return [[null, "Your turn as the shop: reply in the Agent screen (try Example)."]];
+  if (stage === "documents") return [["📎 Attach demo documents (5 PDFs)", DEMO_DOCS.map(f => `[attached file: ${f}]`).join(" ")]];
+  return [];
+}
+
+function render() {
+  const msgs = state.messages || [];
+  const lastOut = msgs.map(m => m.dir).lastIndexOf("out");
+  const html = msgs.length
+    ? msgs.map((m, i) => bubble(m, i === lastOut && i === msgs.length - 1)).join("")
+    : `<div class="empty">Tell the agent what supplies you need, where to, and by when. Or use the example below.</div>`;
+  const quickHtml = quick().map(([label, text]) => label ? `<button data-send="${esc(text)}">${esc(label)}</button>` : `<div class="note">${esc(text)}</div>`).join("");
+  if (html + quickHtml !== lastHtml) {
+    lastHtml = html + quickHtml;
+    $("msgs").innerHTML = html;
+    $("quick").innerHTML = quickHtml;
+    $("msgs").scrollTop = $("msgs").scrollHeight;
+  }
+}
+document.addEventListener("click", e => { const b = e.target.closest("[data-send]"); if (b) send(b.dataset.send); });
+poll();
+</script>
+</body>
+</html>
