@@ -25,13 +25,17 @@ def chat_id() -> int | None:
     return json.loads(CHAT_FILE.read_text()).get("chat_id") if CHAT_FILE.exists() else None
 
 
-def send(text: str) -> str:
+def send(text: str, buttons: list[tuple[str, str]] | None = None) -> str:
     chat = chat_id()
     if not (TOKEN and chat):
         return "not configured" if not TOKEN else "no chat yet"
     try:
-        for start in range(0, len(text), LIMIT):
-            r = requests.post(f"{API}/sendMessage", json={"chat_id": chat, "text": text[start : start + LIMIT]}, timeout=15)
+        chunks = [text[start : start + LIMIT] for start in range(0, len(text), LIMIT)]
+        for n, chunk in enumerate(chunks):
+            body = {"chat_id": chat, "text": chunk}
+            if buttons and n == len(chunks) - 1:
+                body["reply_markup"] = {"inline_keyboard": [[{"text": label, "callback_data": data}] for label, data in buttons]}
+            r = requests.post(f"{API}/sendMessage", json=body, timeout=15)
             r.raise_for_status()
         return "sent"
     except Exception as e:
@@ -45,6 +49,11 @@ def _poll(on_message) -> None:
             r = requests.get(f"{API}/getUpdates", params={"timeout": 25, "offset": offset}, timeout=35)
             for update in r.json().get("result", []):
                 offset = update["update_id"] + 1
+                if query := update.get("callback_query"):
+                    requests.post(f"{API}/answerCallbackQuery", json={"callback_query_id": query["id"]}, timeout=15)
+                    requests.post(f"{API}/editMessageReplyMarkup", json={"chat_id": query["message"]["chat"]["id"], "message_id": query["message"]["message_id"]}, timeout=15)
+                    on_message(query["data"], f"telegram:{query['message']['chat']['id']}")
+                    continue
                 message = update.get("message") or {}
                 text = (message.get("text") or message.get("caption") or "").strip()
                 if message.get("document"):

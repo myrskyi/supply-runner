@@ -57,8 +57,8 @@ def step(text: str) -> None:
     update(lambda s: s["steps"].append({"at": _now(), "text": text}))
 
 
-def tell_user(text: str) -> None:
-    delivery = telegram.send(text) if telegram.ready() else messaging.send_whatsapp(text)
+def tell_user(text: str, buttons: list[tuple[str, str]] | None = None) -> None:
+    delivery = telegram.send(text, buttons) if telegram.ready() else messaging.send_whatsapp(text)
     update(lambda s: s["messages"].append({"dir": "out", "at": _now(), "text": text, "delivery": delivery}))
 
 
@@ -246,7 +246,7 @@ def run_request(text: str) -> None:
         docs = _bullets(f"{c['title']} · ~{c['lead_time_days']} d" for c in applicable)
         tell_user(f"Paperwork\n{docs}" + (f"\n\nStart first: {longest['title']} (~{longest['lead_time_days']} days)" if longest else ""))
 
-        tell_user("Reply CALL and a number (e.g. CALL 1) and I will get price, stock and pickup date from that supplier.")
+        tell_user("Prices and stock are not public. Shall I call the top supplier, or name another one?", [(f"📞 Call {short_name(suppliers[0]['name'])}", "call 1")] if suppliers else None)
         update(lambda s: s.update(stage="waiting"))
     except Exception as e:
         step(f"Failed: {e}")
@@ -254,7 +254,20 @@ def run_request(text: str) -> None:
         update(lambda s: s.update(stage="error"))
 
 
-CALL_COMMAND = re.compile(r"^\s*call\s+(\d+)\s*$", re.IGNORECASE)
+CALL_COMMAND = re.compile(r"^\s*(?:call\s+)?(?:no\.?\s*|#)?(\d+)\s*$", re.IGNORECASE)
+
+
+def picked_supplier(text: str, state: dict) -> int | None:
+    match = CALL_COMMAND.match(text)
+    if match:
+        return int(match.group(1)) - 1
+    if state["stage"] != "waiting" or not re.search(r"\b(call|phone|ring|contact)\b", text, re.IGNORECASE):
+        return None
+    words = set(re.findall(r"[\w.-]+", text.lower()))
+    for n, s in enumerate(state["suppliers"]):
+        if short_name(s["name"]).split()[0].lower() in words:
+            return n
+    return None
 
 
 def _items_for(state: dict, category: str) -> list[dict]:
@@ -283,7 +296,8 @@ def present_offer(call_id: str) -> None:
     lead = f"Pickup in {order['lead_time_days']} day{'' if order['lead_time_days'] == 1 else 's'}" if order["lead_time_days"] is not None else "Pickup date not confirmed"
     tell_user(
         f"Offer from {short_name(supplier['name'])}\n{order['items']}\n{price_text}\n{lead}\nDocuments: {order['supplier_documents'] or 'not confirmed'}\n\n"
-        "Reply YES to accept, or send a counter (e.g. max 20000 CZK, pickup tomorrow)."
+        "Accept, or reply with a counter (e.g. max 20000 CZK, pickup tomorrow).",
+        [("✅ Accept offer", "YES")],
     )
 
 
@@ -395,10 +409,9 @@ STAGE_HANDLERS = {"offer": _offer_reply, "documents": _documents_reply, "feedbac
 def handle_inbound(text: str, sender: str = "web") -> None:
     update(lambda s: s["messages"].append({"dir": "in", "at": _now(), "text": text, "from": sender}))
     analytics.capture("chat_inbound", {"channel": sender.split(":")[0], "length": len(text)})
-    match = CALL_COMMAND.match(text)
-    if match:
-        state = load()
-        index = int(match.group(1)) - 1
+    state = load()
+    index = picked_supplier(text, state) if state["stage"] not in STAGE_HANDLERS else None
+    if index is not None:
         if 0 <= index < len(state["suppliers"]):
             from . import voice
 
